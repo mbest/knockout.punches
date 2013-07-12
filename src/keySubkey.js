@@ -9,15 +9,15 @@ function makeKeySubkeyBindingHandler(bindingKey) {
             baseHandler = ko.bindingHandlers[baseKey];
         if (baseHandler) {
             var subKey = match[2],
-                makeSubHandler = baseHandler.makeSubkeyHandler || makeDefaultKeySubkeyHandler,
-                subHandler = makeSubHandler.call(baseHandler, baseKey, subKey, bindingKey);
+                makeSubHandlerFn = baseHandler.makeSubkeyHandler || makeDefaultKeySubkeyHandler,
+                subHandler = makeSubHandlerFn.call(baseHandler, baseKey, subKey, bindingKey);
             ko.bindingHandlers[bindingKey] = subHandler;
             return subHandler;
         }
     }
 }
 
-// Create a binding handler that translates a binding of "binding: value" to
+// Create a binding handler that translates a binding of "bindingKey: value" to
 // "basekey: {subkey: value}". Compatible with these default bindings: event, attr, css, style.
 function makeDefaultKeySubkeyHandler(baseKey, subKey, bindingKey) {
     var subHandler = ko.utils.extend({}, this);
@@ -52,3 +52,23 @@ ko.getBindingHandler = function(bindingKey) {
     return oldGetHandler(bindingKey) || makeKeySubkeyBindingHandler(bindingKey);
 };
 
+function autoKeySubkeyPreprocess(value, key, addBinding) {
+    if (value.charAt(0) !== "{")
+        return value;
+
+    // Handle two-level binding specified as "binding: {key: value}" by parsing inner
+    // object and converting to "binding.key: value"
+    var subBindings = ko.expressionRewriting.parseObjectLiteral(value);
+    ko.utils.arrayForEach(subBindings, function(keyValue) {
+        addBinding(key+'.'+keyValue.key, keyValue.value);
+    });
+}
+
+// Set the key.subkey preprocessor for a specific binding
+function enableAutoKeySubkeySyntax(bindingKey) {
+    setBindingPreprocessFunction(bindingKey, autoKeySubkeyPreprocess);
+}
+
+// Export the preprocessor functions
+ko.punches.autoKeySubkeyPreprocess = autoKeySubkeyPreprocess;
+ko.punches.enableAutoKeySubkeySyntax = enableAutoKeySubkeySyntax;

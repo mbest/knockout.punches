@@ -76,5 +76,4 @@ describe("Text Filters", function() {
         // Accepts space argument
         expect(eval(filterPreprocessor('{a:true, b:false, c:null} | json:" "'))).toEqual('{\n "a": true,\n "b": false,\n "c": null\n}');
     });
-
 });

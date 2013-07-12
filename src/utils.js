@@ -37,3 +37,9 @@ function setNodePreprocessFunction(preprocessFn) {
         provider.preprocessNode = preprocessFn;
     }
 }
+
+// Create "punches" object and export utility functions
+ko.punches = {
+    setBindingPreprocessFunction: setBindingPreprocessFunction,
+    setNodePreprocessFunction: setNodePreprocessFunction
+};

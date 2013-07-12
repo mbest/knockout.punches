@@ -97,3 +97,7 @@ filters.number = function(value) {
 
 // Export the filters object for general access
 ko.filters = filters;
+
+// Export the preprocessor functions
+ko.punches.filterPreprocessor = filterPreprocessor;
+ko.punches.enableTextFilter = enableTextFilter;

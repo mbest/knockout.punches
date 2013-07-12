@@ -196,3 +196,28 @@ describe('Key.Subkey Bindings', function() {
         }
     });
 });
+
+describe('Key.Subkey preprocessor', function() {
+    var bindings;
+    function addBinding(key, val) {
+        bindings.push(key+":"+val);
+    }
+    beforeEach(function() {
+        bindings = [];
+    });
+
+    it('Should convert x: {y: val} into x.y: val', function() {
+        expect(autoKeySubkeyPreprocess('{y: val}', 'x', addBinding)).toBeUndefined();
+        expect(bindings).toEqual(["x.y:val"]);
+    });
+
+    it('Should convert multiple sub-values to multiple top-level bindings', function() {
+        expect(autoKeySubkeyPreprocess('{y: val1, z: val2}', 'x', addBinding)).toBeUndefined();
+        expect(bindings).toEqual(["x.y:val1", "x.z:val2"]);
+    });
+
+    it('Should do nothing if the value is not in {x:y} syntax', function() {
+        expect(autoKeySubkeyPreprocess('val1', 'x', addBinding)).toEqual("val1");
+        expect(bindings).toEqual([]);
+    });
+});

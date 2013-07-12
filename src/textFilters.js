@@ -6,27 +6,34 @@ function filterPreprocessor(input) {
         return input;
 
     // Split the input into tokens, in which | and : are individual tokens, quoted strings are ignored, and all tokens are space-trimmed
-    var tokens = input.match(/"([^"\\]|\\.)*"|'([^'\\]|\\.)*'|[|:]+|[^\s|:"'][^|:"']*[^\s|:"']|[^\s|:"']/g);
+    var tokens = input.match(/"([^"\\]|\\.)*"|'([^'\\]|\\.)*'|\|\||[|:]|[^\s|:"'][^|:"']*[^\s|:"']|[^\s|:"']/g);
     if (tokens && tokens.length > 1) {
         // Append a line so that we don't need a separate code block to deal with the last item
         tokens.push('|');
         input = tokens[0];
-        var token, inFilters = false, nextIsFilter = false;
+        var lastToken, token, inFilters = false, nextIsFilter = false;
         for (var i = 1, token; token = tokens[i]; ++i) {
             if (token === '|') {
-                if (inFilters)
+                if (inFilters) {
+                    if (lastToken === ':')
+                        input += "undefined";
                     input += ')';
+                }
                 nextIsFilter = true;
                 inFilters = true;
-            } else if (!inFilters) {
-                input += token;
-            } else if (token === ':') {
-                nextIsFilter = false;
-            } else if (nextIsFilter) {
-                input = "ko.filters['" + token + "'](" + input;
             } else {
-                input += "," + token;
+                if (nextIsFilter) {
+                    input = "ko.filters['" + token + "'](" + input;
+                } else if (inFilters && token === ':') {
+                    if (lastToken === ':')
+                        input += "undefined";
+                    input += ",";
+                } else {
+                    input += token;
+                }
+                nextIsFilter = false;
             }
+            lastToken = token;
         }
     }
     return input;
@@ -59,9 +66,28 @@ filters.replace = function(value, search, replace) {
     return String.prototype.replace.call(value, search, replace);
 }
 
+filters.fit = function(value, length, replacement, trimWhere) {
+    if (length && ('' + value).length > length) {
+        replacement = '' + (replacement || '...');
+        length = length - replacement.length;
+        value = '' + value;
+        switch (trimWhere) {
+            case 'left':
+                return replacement + value.slice(-length);
+            case 'middle':
+                var leftLen = Math.ceil(length / 2);
+                return value.substr(0, leftLen) + replacement + value.slice(leftLen-length);
+            default:
+                return value.substr(0, length) + replacement;
+        }
+    } else {
+        return value;
+    }
+}
+
 // Convert a model object to JSON
-filters.json = function(rootObject, replacer, space) {     // replacer and space are optional
-    return ko.utils.toJSON(rootObject, replacer, space);
+filters.json = function(rootObject, space, replacer) {     // replacer and space are optional
+    return ko.toJSON(rootObject, replacer, space);
 };
 
 // Export the filters object for general access

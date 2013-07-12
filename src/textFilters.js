@@ -64,7 +64,7 @@ filters['default'] = function(value, defaultValue) {
 // Return the value with the search string replaced with the replacement string
 filters.replace = function(value, search, replace) {
     return String.prototype.replace.call(value, search, replace);
-}
+};
 
 filters.fit = function(value, length, replacement, trimWhere) {
     if (length && ('' + value).length > length) {
@@ -83,11 +83,16 @@ filters.fit = function(value, length, replacement, trimWhere) {
     } else {
         return value;
     }
-}
+};
 
 // Convert a model object to JSON
 filters.json = function(rootObject, space, replacer) {     // replacer and space are optional
     return ko.toJSON(rootObject, replacer, space);
+};
+
+// Format a number using the browser's toLocaleString
+filters.number = function(value) {
+    return (+value).toLocaleString();
 };
 
 // Export the filters object for general access

@@ -45,6 +45,8 @@ describe("Text Filters", function() {
         expect(eval(filterPreprocessor('"someText" | default:"blank"'))).toEqual('someText');
         // blank value is changed
         expect(eval(filterPreprocessor('"" | default:"blank"'))).toEqual('blank');
+        // zero value is not changed
+        expect(eval(filterPreprocessor('0 | default:"blank"'))).toEqual(0);
     });
 
     it('replace filter should replace found text in input', function() {
@@ -74,6 +76,5 @@ describe("Text Filters", function() {
         // Accepts space argument
         expect(eval(filterPreprocessor('{a:true, b:false, c:null} | json:" "'))).toEqual('{\n "a": true,\n "b": false,\n "c": null\n}');
     });
-
 
 });

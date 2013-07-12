@@ -1,16 +1,3 @@
-var filters = {};
-
-filters.uppercase = function(input) {
-    return String.prototype.toUpperCase.call(input);
-};
-
-filters.lowercase = function(input) {
-    return String.prototype.toUpperCase.call(input);
-};
-
-// Export the filters object for general access
-ko.filters = filters;
-
 // Convert input in the form of `expression | filter1 | filter2:arg1:arg2` to a function call format
 // with filters accessed as ko.filters.filter1, etc.
 function filterPreprocessor(input) {
@@ -36,7 +23,7 @@ function filterPreprocessor(input) {
             } else if (token === ':') {
                 nextIsFilter = false;
             } else if (nextIsFilter) {
-                input = "ko.filters." + token + "(" + input;
+                input = "ko.filters['" + token + "'](" + input;
             } else {
                 input += "," + token;
             }
@@ -49,3 +36,33 @@ function filterPreprocessor(input) {
 function enableTextFilter(bindingKey) {
     setBindingPreprocessFunction(bindingKey, filterPreprocessor);
 }
+
+var filters = {};
+
+// Convert value to uppercase
+filters.uppercase = function(value) {
+    return String.prototype.toUpperCase.call(value);
+};
+
+// Convert value to lowercase
+filters.lowercase = function(value) {
+    return String.prototype.toLowerCase.call(value);
+};
+
+// Return default value if the input value is blank or null
+filters['default'] = function(value, defaultValue) {
+    return (value === '' || value == null) ? defaultValue : value;
+};
+
+// Return the value with the search string replaced with the replacement string
+filters.replace = function(value, search, replace) {
+    return String.prototype.replace.call(value, search, replace);
+}
+
+// Convert a model object to JSON
+filters.json = function(rootObject, replacer, space) {     // replacer and space are optional
+    return ko.utils.toJSON(rootObject, replacer, space);
+};
+
+// Export the filters object for general access
+ko.filters = filters;

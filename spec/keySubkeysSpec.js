@@ -1,4 +1,4 @@
-describe('Key.subkey dynamic bindings', function() {
+describe('Namespaced dynamic bindings', function() {
     beforeEach(jasmine.prepareTestNode);
 
     it('Should be able to set and use binding handlers with x.y syntax', function() {
@@ -40,11 +40,11 @@ describe('Key.subkey dynamic bindings', function() {
         }
     });
 
-    it('Should use handler returned by getSubkeyHandler', function() {
+    it('Should use handler returned by getNamespacedHandler', function() {
         try {
             var observable = ko.observable(), lastSubKey;
             ko.bindingHandlers['a'] = {
-                getSubkeyHandler: function(baseKey, subKey) {
+                getNamespacedHandler: function(subKey) {
                     return {
                         update: function(element, valueAccessor) {
                             if (ko.utils.unwrapObservable(valueAccessor()))
@@ -197,8 +197,8 @@ describe('Key.subkey dynamic bindings', function() {
     });
 });
 
-describe('Key.subkey preprocessor', function() {
-    var autoKeySubkeyPreprocess = ko.punches.keySubkey.preprocessor;
+describe('Auto namespaced preprocessor', function() {
+    var autoNamespacedPreprocessor = ko.punches.namespacedBindings.preprocessor;
     var bindings;
     function addBinding(key, val) {
         bindings.push(key+":"+val);
@@ -208,17 +208,17 @@ describe('Key.subkey preprocessor', function() {
     });
 
     it('Should convert x: {y: val} into x.y: val', function() {
-        expect(autoKeySubkeyPreprocess('{y: val}', 'x', addBinding)).toBeUndefined();
+        expect(autoNamespacedPreprocessor('{y: val}', 'x', addBinding)).toBeUndefined();
         expect(bindings).toEqual(["x.y:val"]);
     });
 
     it('Should convert multiple sub-values to multiple top-level bindings', function() {
-        expect(autoKeySubkeyPreprocess('{y: val1, z: val2}', 'x', addBinding)).toBeUndefined();
+        expect(autoNamespacedPreprocessor('{y: val1, z: val2}', 'x', addBinding)).toBeUndefined();
         expect(bindings).toEqual(["x.y:val1", "x.z:val2"]);
     });
 
     it('Should do nothing if the value is not in {x:y} syntax', function() {
-        expect(autoKeySubkeyPreprocess('val1', 'x', addBinding)).toEqual("val1");
+        expect(autoNamespacedPreprocessor('val1', 'x', addBinding)).toEqual("val1");
         expect(bindings).toEqual([]);
     });
 });

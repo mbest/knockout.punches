@@ -1,37 +1,41 @@
-// Support a short-hand syntax of "key.subkey: value". The "key.subkey" binding
-// handler will be created as needed but can also be created manually using
-// ko.getBindingHandler.
-var keySubkeyMatch = /([^\.]+)\.(.+)/, keySubkeyBindingDivider = '.';
-function getKeySubkeyBindingHandler(bindingKey) {
-    var match = bindingKey.match(keySubkeyMatch);
+// Support dynamically-created, namespaced bindings. The binding key syntax is
+// "namespace.binding". Within a certain namespace, we can dynamically create the
+// handler for any binding. This is particularly useful for bindings that work
+// the same way, but just set a different named value, such as for element
+// attributes or CSS classes.
+var namespacedBindingMatch = /([^\.]+)\.(.+)/, namespaceDivider = '.';
+function createNamespacedBindingHandler(bindingKey) {
+    var match = bindingKey.match(namespacedBindingMatch);
     if (match) {
-        var baseKey = match[1],
-            baseHandler = ko.bindingHandlers[baseKey];
-        if (baseHandler) {
-            var subKey = match[2],
-                subHandlerFn = baseHandler.getSubkeyHandler || getDefaultKeySubkeyHandler,
-                subHandler = subHandlerFn.call(baseHandler, baseKey, subKey, bindingKey);
-            ko.bindingHandlers[bindingKey] = subHandler;
-            return subHandler;
+        var namespace = match[1],
+            namespaceHandler = ko.bindingHandlers[namespace];
+        if (namespaceHandler) {
+            var bindingName = match[2],
+                handlerFn = namespaceHandler.getNamespacedHandler || defaultGetNamespacedHandler,
+                handler = handlerFn.call(namespaceHandler, bindingName, namespace, bindingKey);
+            ko.bindingHandlers[bindingKey] = handler;
+            return handler;
         }
     }
 }
 
-// Create a binding handler that translates a binding of "bindingKey: value" to
-// "basekey: {subkey: value}". Compatible with these default bindings: event, attr, css, style.
-function getDefaultKeySubkeyHandler(baseKey, subKey, bindingKey) {
-    var subHandler = ko.utils.extend({}, this);
+// Knockout's built-in bindings "attr", "event", "css" and "style" include the idea of
+// namespaces, representing it using a single binding that takes an object map of names
+// to values. This default handler translates a binding of "namespacedName: value"
+// to "namespace: {name: value}" to automatically support those built-in bindings.
+function defaultGetNamespacedHandler(name, namespace, namespacedName) {
+    var handler = ko.utils.extend({}, this);
     function setHandlerFunction(funcName) {
-        if (subHandler[funcName]) {
-            subHandler[funcName] = function(element, valueAccessor) {
+        if (handler[funcName]) {
+            handler[funcName] = function(element, valueAccessor) {
                 function subValueAccessor() {
                     var result = {};
-                    result[subKey] = valueAccessor();
+                    result[name] = valueAccessor();
                     return result;
                 }
                 var args = Array.prototype.slice.call(arguments, 0);
                 args[1] = subValueAccessor;
-                return ko.bindingHandlers[baseKey][funcName].apply(this, args);
+                return ko.bindingHandlers[namespace][funcName].apply(this, args);
             };
         }
     }
@@ -39,34 +43,34 @@ function getDefaultKeySubkeyHandler(baseKey, subKey, bindingKey) {
     setHandlerFunction('init');
     setHandlerFunction('update');
     // Clear any preprocess function since preprocessing of the new binding would need to be different
-    if (subHandler.preprocess)
-        subHandler.preprocess = null;
-    if (ko.virtualElements.allowedBindings[baseKey])
-        ko.virtualElements.allowedBindings[bindingKey] = true;
-    return subHandler;
+    if (handler.preprocess)
+        handler.preprocess = null;
+    if (ko.virtualElements.allowedBindings[namespace])
+        ko.virtualElements.allowedBindings[namespacedName] = true;
+    return handler;
 }
 
 // Sets a preprocess function for every generated bindingKey.x binding. This can
 // be called multiple times for the same binding, and the preprocess functions will
-// be chained. If the binding has a custom getSubkeyHandler method, make sure that's
+// be chained. If the binding has a custom getNamespacedHandler method, make sure that's
 // set before this function is used.
-function setDefaultKeySubkeyBindingPreprocessor(bindingKey, preprocessFn) {
+function setDefaultNamespacedBindingPreprocessor(bindingKey, preprocessFn) {
     var handler = ko.getBindingHandler(bindingKey);
     if (handler) {
-        var previousSubHandlerFn = handler.getSubkeyHandler || getDefaultKeySubkeyHandler;
-        handler.subkeyHandler = function() {
-            return setBindingPreprocessor(previousSubHandlerFn.apply(this, arguments), preprocessFn);
+        var previousHandlerFn = handler.getNamespacedHandler || defaultGetNamespacedHandler;
+        handler.getNamespacedHandler = function() {
+            return setBindingPreprocessor(previousHandlerFn.apply(this, arguments), preprocessFn);
         };
     }
 }
 
-// You can use ko.getBindingHandler to manually create key.subkey bindings
+// ko.getBindingHandler will dynmically create namespaced bindings
 var oldGetHandler = ko.getBindingHandler;
 ko.getBindingHandler = function(bindingKey) {
-    return oldGetHandler(bindingKey) || getKeySubkeyBindingHandler(bindingKey);
+    return oldGetHandler(bindingKey) || createNamespacedBindingHandler(bindingKey);
 };
 
-function autoKeySubkeyPreprocess(value, key, addBinding) {
+function autoNamespacedPreprocessor(value, key, addBinding) {
     if (value.charAt(0) !== "{")
         return value;
 
@@ -74,19 +78,19 @@ function autoKeySubkeyPreprocess(value, key, addBinding) {
     // object and converting to "binding.key: value"
     var subBindings = ko.expressionRewriting.parseObjectLiteral(value);
     ko.utils.arrayForEach(subBindings, function(keyValue) {
-        addBinding(key+'.'+keyValue.key, keyValue.value);
+        addBinding(key + namespaceDivider + keyValue.key, keyValue.value);
     });
 }
 
-// Set the key.subkey preprocessor for a specific binding
-function enableAutoKeySubkeySyntax(bindingKey) {
-    setBindingPreprocessor(bindingKey, autoKeySubkeyPreprocess);
+// Set the namespaced preprocessor for a specific binding
+function enableAutoNamespacedSyntax(bindingKey) {
+    setBindingPreprocessor(bindingKey, autoNamespacedPreprocess);
 }
 
 // Export the preprocessor functions
-ko.punches.keySubkey = {
-    getDefaultHandler: getDefaultKeySubkeyHandler,
-    setDefaultBindingPreprocessor: setDefaultKeySubkeyBindingPreprocessor,
-    preprocessor: autoKeySubkeyPreprocess,
-    enableForBinding: enableAutoKeySubkeySyntax
+ko.punches.namespacedBindings = {
+    defaultGetHandler: defaultGetNamespacedHandler,
+    //setDefaultBindingPreprocessor: setDefaultNamespacedBindingPreprocessor,
+    preprocessor: autoNamespacedPreprocessor,
+    enableForBinding: enableAutoNamespacedSyntax
 };

@@ -198,6 +198,7 @@ describe('Key.subkey dynamic bindings', function() {
 });
 
 describe('Key.subkey preprocessor', function() {
+    var autoKeySubkeyPreprocess = ko.punches.keySubkey.preprocessor;
     var bindings;
     function addBinding(key, val) {
         bindings.push(key+":"+val);

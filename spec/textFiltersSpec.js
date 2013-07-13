@@ -1,4 +1,6 @@
 describe("Text filters preprocessor", function() {
+    var filterPreprocessor = ko.punches.textFilters.preprocessor;
+
     it('Should convert basic input|filter syntax into function calls', function() {
         expect(filterPreprocessor('input|filter1|filter2:arg|filter3:arg1:arg2'))
             .toEqual("ko.filters['filter3'](ko.filters['filter2'](ko.filters['filter1'](input),arg),arg1,arg2)");

@@ -99,5 +99,7 @@ filters.number = function(value) {
 ko.filters = filters;
 
 // Export the preprocessor functions
-ko.punches.filterPreprocessor = filterPreprocessor;
-ko.punches.enableTextFilter = enableTextFilter;
+ko.punches.textFilters = {
+    preprocessor: filterPreprocessor,
+    enableForBinding: enableTextFilter
+};

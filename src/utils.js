@@ -40,6 +40,8 @@ function setNodePreprocessFunction(preprocessFn) {
 
 // Create "punches" object and export utility functions
 ko.punches = {
-    setBindingPreprocessFunction: setBindingPreprocessFunction,
-    setNodePreprocessFunction: setNodePreprocessFunction
+    utils: {
+        setBindingPreprocessFunction: setBindingPreprocessFunction,
+        setNodePreprocessFunction: setNodePreprocessFunction
+    }
 };

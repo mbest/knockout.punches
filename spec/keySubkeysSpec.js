@@ -1,4 +1,4 @@
-describe('Key.Subkey Bindings', function() {
+describe('Key.subkey dynamic bindings', function() {
     beforeEach(jasmine.prepareTestNode);
 
     it('Should be able to set and use binding handlers with x.y syntax', function() {
@@ -15,7 +15,7 @@ describe('Key.Subkey Bindings', function() {
         }
     });
 
-    it('Should be able to use x.y binding syntax to call \'x\' handler with \'y\' as object key', function() {
+    it('Should call \'x\' handler with \'y\' as object key', function() {
         try {
             var observable = ko.observable(), lastSubKey;
             ko.bindingHandlers['a'] = {
@@ -40,7 +40,7 @@ describe('Key.Subkey Bindings', function() {
         }
     });
 
-    it('Should be able to define a custom handler for x.y binding syntax', function() {
+    it('Should use handler returned by makeSubkeyHandler', function() {
         try {
             var observable = ko.observable(), lastSubKey;
             ko.bindingHandlers['a'] = {
@@ -67,7 +67,7 @@ describe('Key.Subkey Bindings', function() {
         }
     });
 
-    it('Should be able to use x.y binding syntax in virtual elements if \'x\' binding supports it', function() {
+    it('Should support virtual elements if base binding supports it', function() {
         try {
             var lastSubKey;
             ko.bindingHandlers['a'] = {
@@ -89,7 +89,7 @@ describe('Key.Subkey Bindings', function() {
         }
     });
 
-    it('Should be able use x.y through ko.applyBindingsToNode', function() {
+    it('Should work through ko.applyBindingsToNode', function() {
         try {
             var lastSubKey;
             ko.bindingHandlers['a'] = {
@@ -111,7 +111,7 @@ describe('Key.Subkey Bindings', function() {
         }
     });
 
-    it('Should not run updates for all x.y bindings if only one needs to run', function() {
+    it('Should update only the binding that needs it', function() {
         try {
             var observable = ko.observable('A'), updateCounts = [0,0,0];
             ko.bindingHandlers.test = {
@@ -139,7 +139,7 @@ describe('Key.Subkey Bindings', function() {
         }
     });
 
-    it('Should be able to supply event type as event.type', function() {
+    it('Should be able to supply event handler using event.type', function() {
         try {
             var model = { clickCalled: false };
             testNode.innerHTML = "<button data-bind='event.click: function() { clickCalled = true; }'>hey</button>";
@@ -151,7 +151,7 @@ describe('Key.Subkey Bindings', function() {
         }
     });
 
-    it('Should be able to set CSS class as css.classname', function() {
+    it('Should be able to set CSS class using css.classname', function() {
         try {
             var observable1 = new ko.observable();
             testNode.innerHTML = "<div data-bind='css.myRule: someModelProperty'>Hallo</div>";
@@ -165,7 +165,7 @@ describe('Key.Subkey Bindings', function() {
         }
     });
 
-    it('Should be able to set CSS style as style.stylename', function() {
+    it('Should be able to set CSS style using style.stylename', function() {
         try {
             var myObservable = new ko.observable("red");
             testNode.innerHTML = "<div data-bind='style.backgroundColor: colorValue'>Hallo</div>";
@@ -181,7 +181,7 @@ describe('Key.Subkey Bindings', function() {
         }
     });
 
-    it('Should be able to set attribute as attr.name', function() {
+    it('Should be able to set attribute using attr.name', function() {
         try {
             var model = { myprop : ko.observable("initial value") };
             testNode.innerHTML = "<div data-bind='attr.someAttrib: myprop'></div>";
@@ -197,7 +197,7 @@ describe('Key.Subkey Bindings', function() {
     });
 });
 
-describe('Key.Subkey preprocessor', function() {
+describe('Key.subkey preprocessor', function() {
     var bindings;
     function addBinding(key, val) {
         bindings.push(key+":"+val);

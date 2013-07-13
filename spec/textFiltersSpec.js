@@ -1,4 +1,4 @@
-describe("Text Filters", function() {
+describe("Text filters preprocessor", function() {
     it('Should convert basic input|filter syntax into function calls', function() {
         expect(filterPreprocessor('input|filter1|filter2:arg|filter3:arg1:arg2'))
             .toEqual("ko.filters['filter3'](ko.filters['filter2'](ko.filters['filter1'](input),arg),arg1,arg2)");
@@ -32,15 +32,15 @@ describe("Text Filters", function() {
         }
     });
 
-    it('uppercase filter should convert text to uppercase', function() {
+    it('Should convert text to uppercase using uppercase filter', function() {
         expect(eval(filterPreprocessor('"someText" | uppercase'))).toEqual('SOMETEXT');
     });
 
-    it('lowercase filter should convert text to lowercase', function() {
+    it('Should convert text to lowercase using lowercase filter', function() {
         expect(eval(filterPreprocessor('"someText" | lowercase'))).toEqual('sometext');
     });
 
-    it('default filter should convert blank text to default value', function() {
+    it('Should convert blank text to default value using default filter', function() {
         // non-blank value is not affected
         expect(eval(filterPreprocessor('"someText" | default:"blank"'))).toEqual('someText');
         // blank value is changed
@@ -49,11 +49,11 @@ describe("Text Filters", function() {
         expect(eval(filterPreprocessor('0 | default:"blank"'))).toEqual(0);
     });
 
-    it('replace filter should replace found text in input', function() {
+    it('Should replace found text in input using replace filter', function() {
         expect(eval(filterPreprocessor('"someText" | replace:"some":"any"'))).toEqual('anyText');
     });
 
-    it('fit filter should truncate text if appropriate', function() {
+    it('Should truncate text if appropriate using fit filter', function() {
         // Does nothing if input is shorter than length
         expect(eval(filterPreprocessor('"someText" | fit:8'))).toEqual('someText');
         // Truncates and add ellipses if input is longer than length
@@ -66,7 +66,7 @@ describe("Text Filters", function() {
         expect(eval(filterPreprocessor('"someText" | fit:7::"middle"'))).toEqual('so...xt');
     });
 
-    it('json filter should convert input to JSON text', function() {
+    it('Should convert input to JSON text using json filter', function() {
         // Converts string
         expect(eval(filterPreprocessor('"someText" | json'))).toEqual('"someText"');
         // Converts array

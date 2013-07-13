@@ -1,8 +1,9 @@
 
 // Add a preprocess funtion to a binding handler.
-function setBindingPreprocessFunction(bindingKey, preprocessFn) {
+function setBindingPreprocessor(bindingKeyOrHandler, preprocessFn) {
     // Get the binding handler or create a new, empty one
-    var handler = ko.getBindingHandler(bindingKey) || (ko.bindingHandlers[bindingKey] = {});
+    var handler = typeof bindingKeyOrHandler === 'object' ? bindingKeyOrHandler :
+        (ko.getBindingHandler(bindingKeyOrHandler) || (ko.bindingHandlers[bindingKeyOrHandler] = {}));
     if (handler.preprocess) {
         // If the handler already has a preprocess function, chain the new
         // one after the existing one. If the previous function in the chain
@@ -17,13 +18,14 @@ function setBindingPreprocessFunction(bindingKey, preprocessFn) {
     } else {
         handler.preprocess = preprocessFn;
     }
+    return handler;
 }
 
 // Add a preprocessNode function to the binding provider. If a
 // function already exists, chain the new one after it. This calls
 // each function in the chain until one modifies the node. This
 // method allows only one function to modify the node.
-function setNodePreprocessFunction(preprocessFn) {
+function setNodePreprocessor(preprocessFn) {
     var provider = ko.bindingProvider.instance;
     if (provider.preprocessNode) {
         var previousPreprocessFn = provider.preprocessNode;
@@ -41,7 +43,7 @@ function setNodePreprocessFunction(preprocessFn) {
 // Create "punches" object and export utility functions
 ko.punches = {
     utils: {
-        setBindingPreprocessFunction: setBindingPreprocessFunction,
-        setNodePreprocessFunction: setNodePreprocessFunction
+        setBindingPreprocessor: setBindingPreprocessor,
+        setNodePreprocessor: setNodePreprocessor
     }
 };

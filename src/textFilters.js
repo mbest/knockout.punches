@@ -41,7 +41,7 @@ function filterPreprocessor(input) {
 
 // Set the filter preprocessor for a specific binding
 function enableTextFilter(bindingKey) {
-    setBindingPreprocessFunction(bindingKey, filterPreprocessor);
+    setBindingPreprocessor(bindingKey, filterPreprocessor);
 }
 
 var filters = {};

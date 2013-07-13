@@ -40,11 +40,11 @@ describe('Key.subkey dynamic bindings', function() {
         }
     });
 
-    it('Should use handler returned by makeSubkeyHandler', function() {
+    it('Should use handler returned by getSubkeyHandler', function() {
         try {
             var observable = ko.observable(), lastSubKey;
             ko.bindingHandlers['a'] = {
-                makeSubkeyHandler: function(baseKey, subKey) {
+                getSubkeyHandler: function(baseKey, subKey) {
                     return {
                         update: function(element, valueAccessor) {
                             if (ko.utils.unwrapObservable(valueAccessor()))

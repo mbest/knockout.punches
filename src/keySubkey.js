@@ -2,15 +2,15 @@
 // handler will be created as needed but can also be created manually using
 // ko.getBindingHandler.
 var keySubkeyMatch = /([^\.]+)\.(.+)/, keySubkeyBindingDivider = '.';
-function makeKeySubkeyBindingHandler(bindingKey) {
+function getKeySubkeyBindingHandler(bindingKey) {
     var match = bindingKey.match(keySubkeyMatch);
     if (match) {
         var baseKey = match[1],
             baseHandler = ko.bindingHandlers[baseKey];
         if (baseHandler) {
             var subKey = match[2],
-                makeSubHandlerFn = baseHandler.makeSubkeyHandler || makeDefaultKeySubkeyHandler,
-                subHandler = makeSubHandlerFn.call(baseHandler, baseKey, subKey, bindingKey);
+                subHandlerFn = baseHandler.getSubkeyHandler || getDefaultKeySubkeyHandler,
+                subHandler = subHandlerFn.call(baseHandler, baseKey, subKey, bindingKey);
             ko.bindingHandlers[bindingKey] = subHandler;
             return subHandler;
         }
@@ -19,7 +19,7 @@ function makeKeySubkeyBindingHandler(bindingKey) {
 
 // Create a binding handler that translates a binding of "bindingKey: value" to
 // "basekey: {subkey: value}". Compatible with these default bindings: event, attr, css, style.
-function makeDefaultKeySubkeyHandler(baseKey, subKey, bindingKey) {
+function getDefaultKeySubkeyHandler(baseKey, subKey, bindingKey) {
     var subHandler = ko.utils.extend({}, this);
     function setHandlerFunction(funcName) {
         if (subHandler[funcName]) {
@@ -46,10 +46,24 @@ function makeDefaultKeySubkeyHandler(baseKey, subKey, bindingKey) {
     return subHandler;
 }
 
+// Sets a preprocess function for every generated bindingKey.x binding. This can
+// be called multiple times for the same binding, and the preprocess functions will
+// be chained. If the binding has a custom getSubkeyHandler method, make sure that's
+// set before this function is used.
+function setDefaultKeySubkeyBindingPreprocessor(bindingKey, preprocessFn) {
+    var handler = ko.getBindingHandler(bindingKey);
+    if (handler) {
+        var previousSubHandlerFn = handler.getSubkeyHandler || getDefaultKeySubkeyHandler;
+        handler.subkeyHandler = function() {
+            return setBindingPreprocessor(previousSubHandlerFn.apply(this, arguments), preprocessFn);
+        };
+    }
+}
+
 // You can use ko.getBindingHandler to manually create key.subkey bindings
 var oldGetHandler = ko.getBindingHandler;
 ko.getBindingHandler = function(bindingKey) {
-    return oldGetHandler(bindingKey) || makeKeySubkeyBindingHandler(bindingKey);
+    return oldGetHandler(bindingKey) || getKeySubkeyBindingHandler(bindingKey);
 };
 
 function autoKeySubkeyPreprocess(value, key, addBinding) {
@@ -66,12 +80,13 @@ function autoKeySubkeyPreprocess(value, key, addBinding) {
 
 // Set the key.subkey preprocessor for a specific binding
 function enableAutoKeySubkeySyntax(bindingKey) {
-    setBindingPreprocessFunction(bindingKey, autoKeySubkeyPreprocess);
+    setBindingPreprocessor(bindingKey, autoKeySubkeyPreprocess);
 }
 
 // Export the preprocessor functions
 ko.punches.keySubkey = {
-    makeDefaultHandler: makeDefaultKeySubkeyHandler,
+    getDefaultHandler: getDefaultKeySubkeyHandler,
+    setDefaultBindingPreprocessor: setDefaultKeySubkeyBindingPreprocessor,
     preprocessor: autoKeySubkeyPreprocess,
     enableForBinding: enableAutoKeySubkeySyntax
 };

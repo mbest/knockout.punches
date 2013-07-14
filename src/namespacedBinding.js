@@ -88,7 +88,7 @@ function enableAutoNamespacedSyntax(bindingKey) {
 }
 
 // Export the preprocessor functions
-ko.punches.namespacedBindings = {
+ko.punches.namespacedBinding = {
     defaultGetHandler: defaultGetNamespacedHandler,
     //setDefaultBindingPreprocessor: setDefaultNamespacedBindingPreprocessor,
     preprocessor: autoNamespacedPreprocessor,

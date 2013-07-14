@@ -198,7 +198,7 @@ describe('Namespaced dynamic bindings', function() {
 });
 
 describe('Auto namespaced preprocessor', function() {
-    var autoNamespacedPreprocessor = ko.punches.namespacedBindings.preprocessor;
+    var autoNamespacedPreprocessor = ko.punches.namespacedBinding.preprocessor;
     var bindings;
     function addBinding(key, val) {
         bindings.push(key+":"+val);

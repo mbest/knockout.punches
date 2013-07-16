@@ -70,7 +70,7 @@ ko.getBindingHandler = function(bindingKey) {
     return oldGetHandler(bindingKey) || createNamespacedBindingHandler(bindingKey);
 };
 
-function autoNamespacedPreprocessor(value, key, addBinding) {
+function autoNamespacedPreprocessor(value, binding, addBinding) {
     if (value.charAt(0) !== "{")
         return value;
 
@@ -78,7 +78,7 @@ function autoNamespacedPreprocessor(value, key, addBinding) {
     // object and converting to "binding.key: value"
     var subBindings = ko.expressionRewriting.parseObjectLiteral(value);
     ko.utils.arrayForEach(subBindings, function(keyValue) {
-        addBinding(key + namespaceDivider + keyValue.key, keyValue.value);
+        addBinding(binding + namespaceDivider + keyValue.key, keyValue.value);
     });
 }
 

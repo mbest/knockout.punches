@@ -22,7 +22,7 @@ describe('Namespaced dynamic bindings', function() {
                 update: function(element, valueAccessor) {
                     var value = valueAccessor();
                     for (var key in value)
-                        if (ko.utils.unwrapObservable(value[key]))
+                        if (ko.unwrap(value[key]))
                             lastSubKey = key;
                 }
             };
@@ -47,7 +47,7 @@ describe('Namespaced dynamic bindings', function() {
                 getNamespacedHandler: function(subKey) {
                     return {
                         update: function(element, valueAccessor) {
-                            if (ko.utils.unwrapObservable(valueAccessor()))
+                            if (ko.unwrap(valueAccessor()))
                                 lastSubKey = subKey;
                         }
                     };
@@ -74,7 +74,7 @@ describe('Namespaced dynamic bindings', function() {
                 update: function(element, valueAccessor) {
                     var value = valueAccessor();
                     for (var key in value)
-                        if (ko.utils.unwrapObservable(value[key]))
+                        if (ko.unwrap(value[key]))
                             lastSubKey = key;
                 }
             };
@@ -96,7 +96,7 @@ describe('Namespaced dynamic bindings', function() {
                 update: function(element, valueAccessor) {
                     var value = valueAccessor();
                     for (var key in value)
-                        if (ko.utils.unwrapObservable(value[key]))
+                        if (ko.unwrap(value[key]))
                             lastSubKey = key;
                 }
             };
@@ -118,7 +118,7 @@ describe('Namespaced dynamic bindings', function() {
                 update: function(element, valueAccessor) {
                     var value = valueAccessor();
                     for (var key in value)
-                        if (ko.utils.unwrapObservable(value[key]))
+                        if (ko.unwrap(value[key]))
                             updateCounts[key]++;
                 }
             };
@@ -220,5 +220,37 @@ describe('Auto namespaced preprocessor', function() {
     it('Should do nothing if the value is not in {x:y} syntax', function() {
         expect(autoNamespacedPreprocessor('val1', 'x', addBinding)).toEqual("val1");
         expect(bindings).toEqual([]);
+    });
+});
+
+describe('Auto namespaced bindings', function() {
+    beforeEach(jasmine.prepareTestNode);
+
+    it('Should create and call dynamic binding handler for each sub-value in binding', function() {
+        try {
+            var observable = ko.observable(), lastSubKey;
+            ko.bindingHandlers['a'] = {
+                getNamespacedHandler: function(subKey) {
+                    return {
+                        update: function(element, valueAccessor) {
+                            if (ko.unwrap(valueAccessor()))
+                                lastSubKey = subKey;
+                        }
+                    };
+                },
+                preprocess: ko.punches.namespacedBinding.preprocessor
+            };
+            testNode.innerHTML = "<div data-bind='a: {b: true, c: myObservable}'></div>";
+            ko.applyBindings({ myObservable: observable }, testNode);
+            expect(lastSubKey).toEqual("b");
+
+            // update observable to true so a.c binding gets updated
+            observable(true);
+            expect(lastSubKey).toEqual("c");
+        } finally {
+            delete ko.bindingHandlers['a'];
+            delete ko.bindingHandlers['a.b'];
+            delete ko.bindingHandlers['a.c'];
+        }
     });
 });

@@ -1,24 +1,32 @@
-
 // Add a preprocess funtion to a binding handler.
 function setBindingPreprocessor(bindingKeyOrHandler, preprocessFn) {
-    // Get the binding handler or create a new, empty one
-    var handler = typeof bindingKeyOrHandler === 'object' ? bindingKeyOrHandler :
+    chainPreprocessor(getOrCreateHandler(bindingKeyOrHandler), 'preprocess', preprocessFn);
+}
+
+// These utility functions are separated out because they're also used by
+// preprocessBindingProperty
+
+// Get the binding handler or create a new, empty one
+function getOrCreateHandler(bindingKeyOrHandler) {
+    return typeof bindingKeyOrHandler === 'object' ? bindingKeyOrHandler :
         (ko.getBindingHandler(bindingKeyOrHandler) || (ko.bindingHandlers[bindingKeyOrHandler] = {}));
-    if (handler.preprocess) {
+}
+// Add a preprocess function
+function chainPreprocessor(obj, prop, fn) {
+    if (obj[prop]) {
         // If the handler already has a preprocess function, chain the new
         // one after the existing one. If the previous function in the chain
         // returns a falsy value (to remove the binding), the chain ends. This
         // method allows each function to modify and return the binding value.
-        var previousPreprocessFn = handler.preprocess;
-        handler.preprocess = function(value, key, addBinding) {
-            value = previousPreprocessFn.call(this, value, key, addBinding);
+        var previousFn = obj[prop];
+        obj[prop] = function(value, binding, addBinding) {
+            value = previousFn.call(this, value, binding, addBinding);
             if (value)
-                return preprocessFn.call(this, value, key, addBinding);
+                return fn.call(this, value, binding, addBinding);
         };
     } else {
-        handler.preprocess = preprocessFn;
+        obj[prop] = fn;
     }
-    return handler;
 }
 
 // Add a preprocessNode function to the binding provider. If a

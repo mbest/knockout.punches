@@ -28,3 +28,20 @@ describe("Wrapped callback preprocessor", function() {
             .toEqual("function(){return true;}");
     });
 });
+
+describe("Wrapped callback bindings", function() {
+    beforeEach(jasmine.prepareTestNode);
+
+    it('Should set correct \'this\' in called function', function() {
+        try {
+            ko.punches.wrappedCallback.enableForBinding('click');
+            var model = { subModel: { wasCalled: false, clickFunc: function() {this.wasCalled = true} } };
+            testNode.innerHTML = "<button data-bind='click: subModel.clickFunc'>hey</button>";
+            ko.applyBindings(model, testNode);
+            ko.utils.triggerEvent(testNode.childNodes[0], "click");
+            expect(model.subModel.wasCalled).toEqual(true);
+        } finally {
+            ko.bindingHandlers.click.preprocess = null;
+        }
+    });
+});

@@ -79,3 +79,19 @@ describe("Text filters preprocessor", function() {
         expect(eval(filterPreprocessor('{a:true, b:false, c:null} | json:" "'))).toEqual('{\n "a": true,\n "b": false,\n "c": null\n}');
     });
 });
+
+describe("Text filter bindings", function() {
+    beforeEach(jasmine.prepareTestNode);
+
+    it('Should convert input into appropriate output', function() {
+        try {
+            ko.punches.textFilter.enableForBinding('text');
+
+            testNode.innerHTML = "<div data-bind='text: input | lowercase | fit:10 | json'></div>";
+            ko.applyBindings({ input: "Some string of data" }, testNode);
+            expect(testNode).toContainText('"some st..."');
+        } finally {
+            ko.bindingHandlers.text.preprocess = null;
+        }
+    });
+});

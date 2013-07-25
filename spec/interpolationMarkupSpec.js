@@ -39,6 +39,11 @@ describe("Interpolation Markup preprocessor", function() {
         var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("{{ expr1 }}{{ expr2 }}"));
         expect(result).toHaveNodeTypes([8, 8, 8, 8]);   // comment, comment, comment, comment
     });
+
+    it('Should support more than two bindings', function() {
+        var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("x {{ expr1 }} y {{ expr2 }} z {{ expr3 }}"));
+        expect(result).toHaveNodeTypes([3, 8, 8, 3, 8, 8, 3, 8, 8]);   // text, comment, comment, text, comment, comment, text, comment, comment
+    });
 });
 
 describe("Interpolation Markup bindings", function() {

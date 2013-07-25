@@ -1,4 +1,4 @@
-
+// Performance comparison at http://jsperf.com/markup-interpolation-comparison
 function interpolationMarkupPreprocessor(node) {
     // only needs to work with text nodes
     if (node.nodeType === 3 && node.nodeValue && node.nodeValue.indexOf('{{') !== -1) {

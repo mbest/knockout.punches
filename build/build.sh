@@ -22,6 +22,7 @@ cat fragments/pre.js \
     ../src/wrappedCallback.js \
     ../src/preprocessBindingProperty.js \
     ../src/expressionCallback.js \
+    ../src/interpolationMarkup.js \
     fragments/post.js > $OutDebugFile
 
 # Produce minified version using Google Closure compiler

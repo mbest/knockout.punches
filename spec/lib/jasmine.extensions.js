@@ -58,6 +58,12 @@ jasmine.Matchers.prototype.toHaveSelectedValues = function (expectedValues) {
     return this.env.equals_(selectedValues, expectedValues);
 };
 
+jasmine.Matchers.prototype.toHaveNodeTypes = function (expectedTypes) {
+    var values = ko.utils.arrayMap(this.actual, function (node) { return node.nodeType; });
+    this.actual = values;   // Fix explanatory message
+    return this.env.equals_(values, expectedTypes);
+};
+
 jasmine.prepareTestNode = function() {
     // The bindings specs make frequent use of this utility function to set up
     // a clean new DOM node they can execute code against

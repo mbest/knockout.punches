@@ -8,9 +8,9 @@ function makeExpressionCallbackPreprocessor(args) {
 var eventExpressionPreprocessor = makeExpressionCallbackPreprocessor("$data,$event");
 
 // Set the expressionCallback preprocessor for a specific binding
-function enableExpressionCallback(bindingKey, args) {
+function enableExpressionCallback(bindingKeyOrHandler, args) {
     var args = Array.prototype.slice.call(arguments, 1).join();
-    setBindingPreprocessor(bindingKey, makeExpressionCallbackPreprocessor(args));
+    setBindingPreprocessor(bindingKeyOrHandler, makeExpressionCallbackPreprocessor(args));
 }
 
 // Export the preprocessor functions

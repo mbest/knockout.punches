@@ -79,7 +79,7 @@ As the bindings in your documents are processed, *Knockout.punches* looks for bi
 
 #### Automatic namespacing
 
-
+Namespaced bindings allow you to define and interact with dynamic bindings just like any other binding. For example, suppose you want to enbale the filter syntax for the *title* attribute, you can do so by referencing it using `attr.title` like this: `ko.punches.textFilter.enableForBinding('attr.title');` This will work as long as you bind the *title* attribute using `attr.title`. But what if you want to use filters with the original `attr` syntax like `attr: {title: name | caps}`? *Knockout.punches* provides a simple solution, a preprocessor that converts the `attr: {title: name}` syntax to `attr.title: name`. To enable this preprocessor, call `ko.punches.namespacedBinding.enableForBinding(<binding>);`.
 
 ### Wrapped event callbacks
 
@@ -87,21 +87,64 @@ When binding functions in your model to events, it’s easy to simply provide the 
 
 By wrapping the method call in an anonymous function, like `click: function() {$parent.removePlace($data)}`, the `this` value is set correctly. The wrapped callback preprocessor in *Knockout.punches* does this for you, so you can use the simple reference syntax and know that `this` is the correct object in your method.
 
-To enable this preprocessor, call `ko.punches.wrappedCallback.enableForBinding(<binding>);` for each binding that you want to use it with. If you want this functionality for a binding parameter, such as `template/afterRender`, call `ko.punches.preprocessBindingProperty.setPreprocessor('template', 'afterRender', ko.punches.wrappedCallback.preprocessor);`.
+To enable this preprocessor, call `ko.punches.wrappedCallback.enableForBinding(<binding>);` for each binding that you want to use it with. If you want this functionality for a binding parameter, such as `template/afterRender`, call `ko.punches.preprocessBindingProperty.setPreprocessor('template', 'afterRender', ko.punches.wrappedCallback.preprocessor);`. If you want to use it for all dynamically created bindings with a certain namespace (such as `event`), call `ko.punches.namespacedBinding.setDefaultBindingPreprocessor('event', ko.punches.wrappedCallback.preprocessor);`.
 
 ### Expression-based event handling
 
+If you’re familiar with the original `on...` syntax for defining event handlers, you may wish that Knockout allowed you to bind an expression to event. *Knockout.punches* provides this ability for event handling using the `on` namespace. Thus, for example, if you want to run an expression when the user clicks a button, you could bind it like this:
 
+```html
+<button type="button" data-bind="on.click: x = x + 1">Increment</button>
+```
 
+Any of the model and context properties are available in the expression. In addition, you can access the event object through `$event`.
 
+#### Using expression syntax for callback bindings
 
+If you want to use the expression syntax for other bindings, you can enable it using `ko.punches.expressionCallback.enableForBinding(<binding>, <args>);` The `args` parameter is a string that defines the names of the parameters available in the expression. For example, you could enable this syntax for the `click` binding using `ko.punches.expressionCallback.enableForBinding('click', '$data,$event');`
+
+### API reference
+
+Here are the new APIs introduced in *Knockout.punches*:
+
+* `ko.punches`
+    * `.utils`
+        * `.setBindingPreprocessor(bindingKeyOrHandler, preprocessFn)` - Adds a preprocess function to a binding handler. Automatically handles chanining.
+        * `.setNodePreprocessor(preprocessFn)` - Add a node preprocessor function. Automatically handles chanining.
+    * `.interpolationMarkup`
+        * `.preprocessor(node)` - The preprocess function for the embedded text bindings syntax.
+        * `.enable()` - Enables the embedded text bindings syntax.
+    * `.textFilter`
+        * `.preprocessor(input)` - The preprocess function for the filter syntax.
+        * `.enableForBinding(bindingKeyOrHandler)` - Enables the filter syntax for the specified binding.
+    * `.namespacedBinding`
+        * `.defaultGetHandler(name, namespace, namespacedName)` - Gets a binding handler for the given namespace/name that calls the *namespace* binding handler with a value of `{name: value}`.
+        * `.setDefaultBindingPreprocessor(namespace, preprocessFn)` - Sets a preprocessor for each dynamically created binding for the given namespace.
+        * `.preprocessor(input)` - The preprocess function for the automatic namespacing syntax.
+        * `.enableForBinding(bindingKeyOrHandler)` - Enables the automatic namespacing syntax for the specified binding.
+    * `.wrappedCallback`
+        * `.preprocessor(input)` - The preprocess function for the wrapped callback syntax.
+        * `.enableForBinding(bindingKeyOrHandler)` - Enables the wrapped callback syntax for the specified binding.
+    * `.expressionCallback`
+        * `.makePreprocessor(args)` - Returns a preprocess function for the callback expression syntax. `args` is a list of parameter names that the binding passes to the callback function.
+        * `.eventPreprocessor(input)` - The preprocess function for event handlers (uses *args* of `$data,$event`).
+        * `.enableForBinding(bindingKeyOrHandler, args)` - Enables the callback expression syntax for the specified binding.
+    * `.preprocessBindingProperty`
+        * `.setPreprocessor(bindingKeyOrHandler, property, preprocessFn)` - Enables a preprocess function for a specific property of a binding.
+
+* `ko.filters` - A set of filter functions for use with the filter syntax.
+
+* `ko.bindingHandlers.on` - The handler for the `on` namespace, for expression-based event handling.
+
+* `ko.getBindingHandler` - This *Knockout* API is extended by *Knockout.punches* to dyntamically create handlers for namespaced bindings.
+
+### Background
 
 Knockout 3.0 includes three new APIs to extend the binding system with new syntaxes. Here’s a quick summary of the three methods:
 
 1. Extend `ko.getBindingHandler` to dynamically create binding handlers.
 2. Implement `ko.bindingProvider.instance.preprocessNode` to modify or replace DOM nodes before bindings are processed.
 3. Implement `<bindingHandler>.preprocess` to modify the binding value before it is evaluated.
-
 
 ### License and Contact
 

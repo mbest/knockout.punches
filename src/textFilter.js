@@ -40,8 +40,8 @@ function filterPreprocessor(input) {
 }
 
 // Set the filter preprocessor for a specific binding
-function enableTextFilter(bindingKey) {
-    setBindingPreprocessor(bindingKey, filterPreprocessor);
+function enableTextFilter(bindingKeyOrHandler) {
+    setBindingPreprocessor(bindingKeyOrHandler, filterPreprocessor);
 }
 
 var filters = {};

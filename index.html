@@ -1,0 +1,258 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Knockout.punches by mbest</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Knockout.punches</h1>
+        <p>A collection of enhanced binding syntaxes using Knockout 3+</p>
+        <p class="view"><a href="https://github.com/mbest/knockout.punches">View the Project on GitHub <small>mbest/knockout.punches</small></a></p>
+        <ul>
+          <li><a href="https://github.com/mbest/knockout.punches/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/mbest/knockout.punches/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/mbest/knockout.punches">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>
+<a name="knockoutpunches" class="anchor" href="#knockoutpunches"><span class="octicon octicon-link"></span></a>Knockout.punches</h2>
+
+<p>Using the new APIs in <a href="https://github.com/knockout/knockout/releases/tag/v3.0.0beta">Knockout 3.0.0</a>, this plugin provides a set of enhanced binding syntaxes.</p>
+
+<h3>
+<a name="embedded-text-bindings" class="anchor" href="#embedded-text-bindings"><span class="octicon octicon-link"></span></a>Embedded text bindings</h3>
+
+<p>Rather than using the <a href="http://knockoutjs.com/documentation/text-binding.html"><code>text</code></a> binding, you can use double curly-brace syntax to insert dynamic text content. For example:</p>
+
+<div class="highlight"><pre><span class="nt">&lt;div&gt;</span>Hello {{ name }}.<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+
+<p>This method works by converting <code>{{expression}}</code> markup to <code>&lt;!--ko text:expression--&gt;&lt;!--/ko--&gt;</code> before binding.</p>
+
+<p>To enable this syntax, call <code>ko.punches.interpolationMarkup.enable();</code>. </p>
+
+<h3>
+<a name="text-filters" class="anchor" href="#text-filters"><span class="octicon octicon-link"></span></a>Text filters</h3>
+
+<p>Rather than directly calling a function or using a computed observable to format output, you can use the filtering syntax. For example:</p>
+
+<div class="highlight"><pre><span class="nt">&lt;span</span> <span class="na">data-bind=</span><span class="s">"text: name | fit:20 | uppercase"</span><span class="nt">&gt;&lt;/span&gt;</span>
+</pre></div>
+
+<p>This method works by converting <code>expression|filter[:arg1...]</code> to <code>ko.filters.filter(expression, arg1 ...)</code> before binding. A matching filter function must exist in <code>ko.filters</code>. </p>
+
+<p>To enable this syntax, call <code>ko.punches.textFilter.enableForBinding(&lt;binding&gt;);</code> for each binding that you want to use with filters.</p>
+
+<h4>
+<a name="built-in-filters" class="anchor" href="#built-in-filters"><span class="octicon octicon-link"></span></a>Built-in filters</h4>
+
+<p><em>Knockout.punches</em> includes the following filters:</p>
+
+<ol>
+<li>
+<code>default:&lt;defaultValue&gt;</code> - If the value is blank or null, replace it with the given <em>default value</em>.</li>
+<li>
+<code>fit:&lt;length&gt;[:&lt;replacement&gt;][:&lt;where&gt;]</code> - Trim the value if it’s longer than the given <em>length</em>. The trimmed portion is replaced with  <code>...</code> or the <em>replacement</em> value, if given. By default, the value is trimmed on the right but can be changed to <code>left</code> or <code>middle</code> through the <em>where</em> option. For example: <code>name | fit:10::'middle'</code> will convert <code>Shakespeare</code> to <code>Shak...are</code>.</li>
+<li>
+<code>json[:space]</code> - Convert the value to a JSON string using <code>ko.toJSON</code>. You can give a <em>space</em> value to format the JSON output.</li>
+<li>
+<code>lowercase</code> - Convert the value to lowercase.</li>
+<li>
+<code>number</code> - Format the value using <code>toLocaleString</code>.</li>
+<li>
+<code>replace:&lt;search&gt;:&lt;replace&gt;</code> - Perform a search and replace on the value using <code>String#replace</code>.</li>
+<li>
+<code>uppercase</code> - Convert the value to uppercase.</li>
+</ol><h4>
+<a name="custom-filters" class="anchor" href="#custom-filters"><span class="octicon octicon-link"></span></a>Custom filters</h4>
+
+<p>You can create your own filters by adding them to <code>ko.filters</code>. Here is an example:</p>
+
+<div class="highlight"><pre><span class="c1">// Custom filter can be used like "| append: 'xyz'"</span>
+<span class="nx">ko</span><span class="p">.</span><span class="nx">filters</span><span class="p">.</span><span class="nx">append</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">arg1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="s1">''</span> <span class="o">+</span> <span class="nx">value</span> <span class="o">+</span> <span class="nx">arg1</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+
+<h3>
+<a name="namespaced-dynamic-bindings" class="anchor" href="#namespaced-dynamic-bindings"><span class="octicon octicon-link"></span></a>Namespaced dynamic bindings</h3>
+
+<p>When you have a set of bindings with the same functionality, the namespacing syntax allows you to dynamically create the handlers for those bindings based on which ones are used. For example, if you want to bind to arbitrary <em>data</em> attributes, you could create a <code>data</code> namespace, which you would then bind as follows:</p>
+
+<div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">data-bind=</span><span class="s">"data.color: color"</span><span class="nt">&gt;&lt;/div&gt;</span>
+</pre></div>
+
+<p>Here’s how you would define the handler for the <em>data</em> namespace:</p>
+
+<div class="highlight"><pre><span class="nx">ko</span><span class="p">.</span><span class="nx">bindingHandlers</span><span class="p">.</span><span class="nx">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">getNamespacedHandler</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">binding</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="nx">update</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span> <span class="nx">valueAccessor</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">element</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="s1">'data-'</span> <span class="o">+</span> <span class="nx">binding</span><span class="p">,</span> <span class="nx">ko</span><span class="p">.</span><span class="nx">unwrap</span><span class="p">(</span><span class="nx">valueAccessor</span><span class="p">()));</span>
+            <span class="p">}</span>
+        <span class="p">};</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+
+<p>As the bindings in your documents are processed, <em>Knockout.punches</em> looks for bindings with the format <code>x.y: value</code> that don’t already have a binding handler. It then creates an <code>x.y</code> handler using the <code>x</code> namespace handler, or if none is found, it uses a default handler that calls the <code>x</code> binding with the value <code>{y: value}</code>. This default behavior allows you to use the namespace syntax to bind events, attributes, styles, and classes using the <code>event</code>, <code>attr</code>, <code>style</code>, and <code>css</code> namespaces respectively. For example:</p>
+
+<div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">data-bind=</span><span class="s">"style.color: currentProfit() &lt; 0 ? 'red' : 'black'"</span><span class="nt">&gt;&lt;/div&gt;</span>
+</pre></div>
+
+<h4>
+<a name="automatic-namespacing" class="anchor" href="#automatic-namespacing"><span class="octicon octicon-link"></span></a>Automatic namespacing</h4>
+
+<p>Namespaced bindings allow you to define and interact with dynamic bindings just like any other binding. For example, suppose you want to enbale the filter syntax for the <em>title</em> attribute, you can do so by referencing it using <code>attr.title</code> like this: <code>ko.punches.textFilter.enableForBinding('attr.title');</code> This will work as long as you bind the <em>title</em> attribute using <code>attr.title</code>. But what if you want to use filters with the original <code>attr</code> syntax like <code>attr: {title: name | caps}</code>? <em>Knockout.punches</em> provides a simple solution, a preprocessor that converts the <code>attr: {title: name}</code> syntax to <code>attr.title: name</code>. To enable this preprocessor, call <code>ko.punches.namespacedBinding.enableForBinding(&lt;binding&gt;);</code>.</p>
+
+<h3>
+<a name="wrapped-event-callbacks" class="anchor" href="#wrapped-event-callbacks"><span class="octicon octicon-link"></span></a>Wrapped event callbacks</h3>
+
+<p>When binding functions in your model to events, it’s easy to simply provide the function reference to the binding such as <code>click: $parent.removePlace</code>. When bound this way, though, the reference to <code>$parent</code> is lost; the <code>removePlace</code> method will be called with a default <code>this</code> value (the current model object). (See this <a href="https://github.com/knockout/knockout/issues/378">Github issue</a> for more information.)</p>
+
+<p>By wrapping the method call in an anonymous function, like <code>click: function() {$parent.removePlace($data)}</code>, the <code>this</code> value is set correctly. The wrapped callback preprocessor in <em>Knockout.punches</em> does this for you, so you can use the simple reference syntax and know that <code>this</code> is the correct object in your method.</p>
+
+<p>To enable this preprocessor, call <code>ko.punches.wrappedCallback.enableForBinding(&lt;binding&gt;);</code> for each binding that you want to use it with. If you want this functionality for a binding parameter, such as <code>template/afterRender</code>, call <code>ko.punches.preprocessBindingProperty.setPreprocessor('template', 'afterRender', ko.punches.wrappedCallback.preprocessor);</code>. If you want to use it for all dynamically created bindings with a certain namespace (such as <code>event</code>), call <code>ko.punches.namespacedBinding.setDefaultBindingPreprocessor('event', ko.punches.wrappedCallback.preprocessor);</code>.</p>
+
+<h3>
+<a name="expression-based-event-handling" class="anchor" href="#expression-based-event-handling"><span class="octicon octicon-link"></span></a>Expression-based event handling</h3>
+
+<p>If you’re familiar with the original <code>on...</code> syntax for defining event handlers, you may wish that Knockout allowed you to bind an expression to event. <em>Knockout.punches</em> provides this ability for event handling using the <code>on</code> namespace. Thus, for example, if you want to run an expression when the user clicks a button, you could bind it like this:</p>
+
+<div class="highlight"><pre><span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">"button"</span> <span class="na">data-bind=</span><span class="s">"on.click: x = x + 1"</span><span class="nt">&gt;</span>Increment<span class="nt">&lt;/button&gt;</span>
+</pre></div>
+
+<p>Any of the model and context properties are available in the expression. In addition, you can access the event object through <code>$event</code>.</p>
+
+<h4>
+<a name="using-expression-syntax-for-callback-bindings" class="anchor" href="#using-expression-syntax-for-callback-bindings"><span class="octicon octicon-link"></span></a>Using expression syntax for callback bindings</h4>
+
+<p>If you want to use the expression syntax for other bindings, you can enable it using <code>ko.punches.expressionCallback.enableForBinding(&lt;binding&gt;, &lt;args&gt;);</code> The <code>args</code> parameter is a string that defines the names of the parameters available in the expression. For example, you could enable this syntax for the <code>click</code> binding using <code>ko.punches.expressionCallback.enableForBinding('click', '$data,$event');</code></p>
+
+<h3>
+<a name="api-reference" class="anchor" href="#api-reference"><span class="octicon octicon-link"></span></a>API reference</h3>
+
+<p>Here are the new APIs introduced in <em>Knockout.punches</em>:</p>
+
+<ul>
+<li>
+<p><code>ko.punches</code></p>
+
+<ul>
+<li>
+<code>.utils</code>
+
+<ul>
+<li>
+<code>.setBindingPreprocessor(bindingKeyOrHandler, preprocessFn)</code> - Adds a preprocess function to a binding handler. Automatically handles chanining.</li>
+<li>
+<code>.setNodePreprocessor(preprocessFn)</code> - Add a node preprocessor function. Automatically handles chanining.</li>
+</ul>
+</li>
+<li>
+<code>.interpolationMarkup</code>
+
+<ul>
+<li>
+<code>.preprocessor(node)</code> - The preprocess function for the embedded text bindings syntax.</li>
+<li>
+<code>.enable()</code> - Enables the embedded text bindings syntax.</li>
+</ul>
+</li>
+<li>
+<code>.textFilter</code>
+
+<ul>
+<li>
+<code>.preprocessor(input)</code> - The preprocess function for the filter syntax.</li>
+<li>
+<code>.enableForBinding(bindingKeyOrHandler)</code> - Enables the filter syntax for the specified binding.</li>
+</ul>
+</li>
+<li>
+<code>.namespacedBinding</code>
+
+<ul>
+<li>
+<code>.defaultGetHandler(name, namespace, namespacedName)</code> - Gets a binding handler for the given namespace/name that calls the <em>namespace</em> binding handler with a value of <code>{name: value}</code>.</li>
+<li>
+<code>.setDefaultBindingPreprocessor(namespace, preprocessFn)</code> - Sets a preprocessor for each dynamically created binding for the given namespace.</li>
+<li>
+<code>.preprocessor(input)</code> - The preprocess function for the automatic namespacing syntax.</li>
+<li>
+<code>.enableForBinding(bindingKeyOrHandler)</code> - Enables the automatic namespacing syntax for the specified binding.</li>
+</ul>
+</li>
+<li>
+<code>.wrappedCallback</code>
+
+<ul>
+<li>
+<code>.preprocessor(input)</code> - The preprocess function for the wrapped callback syntax.</li>
+<li>
+<code>.enableForBinding(bindingKeyOrHandler)</code> - Enables the wrapped callback syntax for the specified binding.</li>
+</ul>
+</li>
+<li>
+<code>.expressionCallback</code>
+
+<ul>
+<li>
+<code>.makePreprocessor(args)</code> - Returns a preprocess function for the callback expression syntax. <code>args</code> is a list of parameter names that the binding passes to the callback function.</li>
+<li>
+<code>.eventPreprocessor(input)</code> - The preprocess function for event handlers (uses <em>args</em> of <code>$data,$event</code>).</li>
+<li>
+<code>.enableForBinding(bindingKeyOrHandler, args)</code> - Enables the callback expression syntax for the specified binding.</li>
+</ul>
+</li>
+<li>
+<code>.preprocessBindingProperty</code>
+
+<ul>
+<li>
+<code>.setPreprocessor(bindingKeyOrHandler, property, preprocessFn)</code> - Enables a preprocess function for a specific property of a binding.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>ko.filters</code> - A set of filter functions for use with the filter syntax.</p></li>
+<li><p><code>ko.bindingHandlers.on</code> - The handler for the <code>on</code> namespace, for expression-based event handling.</p></li>
+<li><p><code>ko.getBindingHandler</code> - This <em>Knockout</em> API is extended by <em>Knockout.punches</em> to dyntamically create handlers for namespaced bindings.</p></li>
+</ul><h3>
+<a name="background" class="anchor" href="#background"><span class="octicon octicon-link"></span></a>Background</h3>
+
+<p>Knockout 3.0 includes three new APIs to extend the binding system with new syntaxes. Here’s a quick summary of the three methods:</p>
+
+<ol>
+<li>Extend <code>ko.getBindingHandler</code> to dynamically create binding handlers.</li>
+<li>Implement <code>ko.bindingProvider.instance.preprocessNode</code> to modify or replace DOM nodes before bindings are processed.</li>
+<li>Implement <code>&lt;bindingHandler&gt;.preprocess</code> to modify the binding value before it is evaluated.</li>
+</ol><h3>
+<a name="license-and-contact" class="anchor" href="#license-and-contact"><span class="octicon octicon-link"></span></a>License and Contact</h3>
+
+<p><strong>License:</strong> MIT (<a href="http://www.opensource.org/licenses/mit-license.php">http://www.opensource.org/licenses/mit-license.php</a>)</p>
+
+<p>Michael Best<br><a href="https://github.com/mbest">https://github.com/mbest</a><br><a href="mailto:mbest@dasya.com">mbest@dasya.com</a></p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/mbest">mbest</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>

@@ -1,5 +1,5 @@
 /**
- * @license Knockout.punches
+ * @license Knockout.Punches
  * Enhanced binding syntaxes for Knockout 3+
  * (c) Michael Best
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)

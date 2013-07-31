@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Knockout.punches by mbest</title>
+    <title>Knockout.Punches by mbest</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -17,7 +17,7 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Knockout.punches 0.1.0</h1>
+        <h1>Knockout.Punches 0.1.0</h1>
         <p>Enhanced binding syntaxes for Knockout 3+</p>
         <p class="view"><a href="https://github.com/mbest/knockout.punches">View the Project on GitHub <small>mbest/knockout.punches</small></a></p>
         <ul>
@@ -28,7 +28,7 @@
       </header>
       <section>
         <h2>
-<a name="knockoutpunches" class="anchor" href="#knockoutpunches"><span class="octicon octicon-link"></span></a>Knockout.punches</h2>
+<a name="knockoutpunches" class="anchor" href="#knockoutpunches"><span class="octicon octicon-link"></span></a>Knockout.Punches</h2>
 
 <p>Using the new APIs in <a href="https://github.com/knockout/knockout/releases/tag/v3.0.0beta">Knockout 3.0.0</a>, this plugin provides a set of enhanced binding syntaxes.</p>
 
@@ -59,7 +59,7 @@
 <h4>
 <a name="built-in-filters" class="anchor" href="#built-in-filters"><span class="octicon octicon-link"></span></a>Built-in filters</h4>
 
-<p><em>Knockout.punches</em> includes the following filters:</p>
+<p><em>Knockout.Punches</em> includes the following filters:</p>
 
 <ol>
 <li>
@@ -108,7 +108,7 @@
 <span class="p">};</span>
 </pre></div>
 
-<p>As the bindings in your documents are processed, <em>Knockout.punches</em> looks for bindings with the format <code>x.y: value</code> that don’t already have a binding handler. It then creates an <code>x.y</code> handler using the <code>x</code> namespace handler, or if none is found, it uses a default handler that calls the <code>x</code> binding with the value <code>{y: value}</code>. This default behavior allows you to use the namespace syntax to bind events, attributes, styles, and classes using the <code>event</code>, <code>attr</code>, <code>style</code>, and <code>css</code> namespaces respectively. For example:</p>
+<p>As the bindings in your documents are processed, <em>Knockout.Punches</em> looks for bindings with the format <code>x.y: value</code> that don’t already have a binding handler. It then creates an <code>x.y</code> handler using the <code>x</code> namespace handler, or if none is found, it uses a default handler that calls the <code>x</code> binding with the value <code>{y: value}</code>. This default behavior allows you to use the namespace syntax to bind events, attributes, styles, and classes using the <code>event</code>, <code>attr</code>, <code>style</code>, and <code>css</code> namespaces respectively. For example:</p>
 
 <div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">data-bind=</span><span class="s">"style.color: currentProfit() &lt; 0 ? 'red' : 'black'"</span><span class="nt">&gt;&lt;/div&gt;</span>
 </pre></div>
@@ -116,21 +116,21 @@
 <h4>
 <a name="automatic-namespacing" class="anchor" href="#automatic-namespacing"><span class="octicon octicon-link"></span></a>Automatic namespacing</h4>
 
-<p>Namespaced bindings allow you to define and interact with dynamic bindings just like any other binding. For example, suppose you want to enbale the filter syntax for the <em>title</em> attribute, you can do so by referencing it using <code>attr.title</code> like this: <code>ko.punches.textFilter.enableForBinding('attr.title');</code> This will work as long as you bind the <em>title</em> attribute using <code>attr.title</code>. But what if you want to use filters with the original <code>attr</code> syntax like <code>attr: {title: name | caps}</code>? <em>Knockout.punches</em> provides a simple solution, a preprocessor that converts the <code>attr: {title: name}</code> syntax to <code>attr.title: name</code>. To enable this preprocessor, call <code>ko.punches.namespacedBinding.enableForBinding(&lt;binding&gt;);</code>.</p>
+<p>Namespaced bindings allow you to define and interact with dynamic bindings just like any other binding. For example, suppose you want to enable the filter syntax for the <em>title</em> attribute; you can do so by referencing it using <code>attr.title</code> like this: <code>ko.punches.textFilter.enableForBinding('attr.title');</code> This will work as long as you bind the <em>title</em> attribute using <code>attr.title</code>. But what if you want to use filters with the original <code>attr</code> syntax like <code>attr: {title: name | caps}</code>? <em>Knockout.Punches</em> provides a simple solution, a preprocessor that converts the <code>attr: {title: name}</code> syntax to <code>attr.title: name</code>. To enable this preprocessor, call <code>ko.punches.namespacedBinding.enableForBinding(&lt;binding&gt;);</code>.</p>
 
 <h3>
 <a name="wrapped-event-callbacks" class="anchor" href="#wrapped-event-callbacks"><span class="octicon octicon-link"></span></a>Wrapped event callbacks</h3>
 
 <p>When binding functions in your model to events, it’s easy to simply provide the function reference to the binding such as <code>click: $parent.removePlace</code>. When bound this way, though, the reference to <code>$parent</code> is lost; the <code>removePlace</code> method will be called with a default <code>this</code> value (the current model object). (See this <a href="https://github.com/knockout/knockout/issues/378">Github issue</a> for more information.)</p>
 
-<p>By wrapping the method call in an anonymous function, like <code>click: function() {$parent.removePlace($data)}</code>, the <code>this</code> value is set correctly. The wrapped callback preprocessor in <em>Knockout.punches</em> does this for you, so you can use the simple reference syntax and know that <code>this</code> is the correct object in your method.</p>
+<p>By wrapping the method call in an anonymous function, like <code>click: function() {$parent.removePlace($data)}</code>, the <code>this</code> value is set correctly. The wrapped callback preprocessor in <em>Knockout.Punches</em> does this for you, so you can use the simple reference syntax and know that <code>this</code> is the correct object in your method.</p>
 
 <p>To enable this preprocessor, call <code>ko.punches.wrappedCallback.enableForBinding(&lt;binding&gt;);</code> for each binding that you want to use it with. If you want this functionality for a binding parameter, such as <code>template/afterRender</code>, call <code>ko.punches.preprocessBindingProperty.setPreprocessor('template', 'afterRender', ko.punches.wrappedCallback.preprocessor);</code>. If you want to use it for all dynamically created bindings with a certain namespace (such as <code>event</code>), call <code>ko.punches.namespacedBinding.setDefaultBindingPreprocessor('event', ko.punches.wrappedCallback.preprocessor);</code>.</p>
 
 <h3>
 <a name="expression-based-event-handling" class="anchor" href="#expression-based-event-handling"><span class="octicon octicon-link"></span></a>Expression-based event handling</h3>
 
-<p>If you’re familiar with the original <code>on...</code> syntax for defining event handlers, you may wish that Knockout allowed you to bind an expression to event. <em>Knockout.punches</em> provides this ability for event handling using the <code>on</code> namespace. Thus, for example, if you want to run an expression when the user clicks a button, you could bind it like this:</p>
+<p>If you’re familiar with the original <code>on...</code> syntax for defining event handlers, you may wish that Knockout allowed you to bind an expression to event. <em>Knockout.Punches</em> provides this ability for event handling using the <code>on</code> namespace. Thus, for example, if you want to run an expression when the user clicks a button, you could bind it like this:</p>
 
 <div class="highlight"><pre><span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">"button"</span> <span class="na">data-bind=</span><span class="s">"on.click: x = x + 1"</span><span class="nt">&gt;</span>Increment<span class="nt">&lt;/button&gt;</span>
 </pre></div>
@@ -145,7 +145,7 @@
 <h3>
 <a name="api-reference" class="anchor" href="#api-reference"><span class="octicon octicon-link"></span></a>API reference</h3>
 
-<p>Here are the new APIs introduced in <em>Knockout.punches</em>:</p>
+<p>Here are the new APIs introduced in <em>Knockout.Punches</em>:</p>
 
 <ul>
 <li>
@@ -230,7 +230,7 @@
 </li>
 <li><p><code>ko.filters</code> - A set of filter functions for use with the filter syntax.</p></li>
 <li><p><code>ko.bindingHandlers.on</code> - The handler for the <code>on</code> namespace, for expression-based event handling.</p></li>
-<li><p><code>ko.getBindingHandler</code> - This <em>Knockout</em> API is extended by <em>Knockout.punches</em> to dyntamically create handlers for namespaced bindings.</p></li>
+<li><p><code>ko.getBindingHandler</code> - This <em>Knockout</em> API is extended by <em>Knockout.Punches</em> to dyntamically create handlers for namespaced bindings.</p></li>
 </ul><h3>
 <a name="background" class="anchor" href="#background"><span class="octicon octicon-link"></span></a>Background</h3>
 

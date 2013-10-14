@@ -48,10 +48,19 @@ function setNodePreprocessor(preprocessFn) {
     }
 }
 
+function setBindingHandlerCreator(matchRegex, callbackFn) {
+    var oldGetHandler = ko.getBindingHandler;
+    ko.getBindingHandler = function(bindingKey) {
+        var match;
+        return oldGetHandler(bindingKey) || ((match = bindingKey.match(matchRegex)) && callbackFn(match, bindingKey));
+    };
+}
+
 // Create "punches" object and export utility functions
 ko.punches = {
     utils: {
         setBindingPreprocessor: setBindingPreprocessor,
-        setNodePreprocessor: setNodePreprocessor
+        setNodePreprocessor: setNodePreprocessor,
+        setBindingHandlerCreator: setBindingHandlerCreator
     }
 };

@@ -1,9 +1,9 @@
 /**
- * @license Knockout.punches
+ * @license Knockout.Punches
  * Enhanced binding syntaxes for Knockout 3+
  * (c) Michael Best
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
- * Version 0.1.0
+ * Version 0.1.1
  */
 (function() {
 // Add a preprocess funtion to a binding handler.
@@ -56,11 +56,20 @@ function setNodePreprocessor(preprocessFn) {
     }
 }
 
+function setBindingHandlerCreator(matchRegex, callbackFn) {
+    var oldGetHandler = ko.getBindingHandler;
+    ko.getBindingHandler = function(bindingKey) {
+        var match;
+        return oldGetHandler(bindingKey) || ((match = bindingKey.match(matchRegex)) && callbackFn(match, bindingKey));
+    };
+}
+
 // Create "punches" object and export utility functions
 ko.punches = {
     utils: {
         setBindingPreprocessor: setBindingPreprocessor,
-        setNodePreprocessor: setNodePreprocessor
+        setNodePreprocessor: setNodePreprocessor,
+        setBindingHandlerCreator: setBindingHandlerCreator
     }
 };
 // Convert input in the form of `expression | filter1 | filter2:arg1:arg2` to a function call format
@@ -174,20 +183,17 @@ ko.punches.textFilter = {
 // the same way, but just set a different named value, such as for element
 // attributes or CSS classes.
 var namespacedBindingMatch = /([^\.]+)\.(.+)/, namespaceDivider = '.';
-function createNamespacedBindingHandler(bindingKey) {
-    var match = bindingKey.match(namespacedBindingMatch);
-    if (match) {
-        var namespace = match[1],
-            namespaceHandler = ko.bindingHandlers[namespace];
-        if (namespaceHandler) {
-            var bindingName = match[2],
-                handlerFn = namespaceHandler.getNamespacedHandler || defaultGetNamespacedHandler,
-                handler = handlerFn.call(namespaceHandler, bindingName, namespace, bindingKey);
-            ko.bindingHandlers[bindingKey] = handler;
-            return handler;
-        }
+setBindingHandlerCreator(namespacedBindingMatch, function (match, bindingKey) {
+    var namespace = match[1],
+        namespaceHandler = ko.bindingHandlers[namespace];
+    if (namespaceHandler) {
+        var bindingName = match[2],
+            handlerFn = namespaceHandler.getNamespacedHandler || defaultGetNamespacedHandler,
+            handler = handlerFn.call(namespaceHandler, bindingName, namespace, bindingKey);
+        ko.bindingHandlers[bindingKey] = handler;
+        return handler;
     }
-}
+});
 
 // Knockout's built-in bindings "attr", "event", "css" and "style" include the idea of
 // namespaces, representing it using a single binding that takes an object map of names
@@ -222,8 +228,8 @@ function defaultGetNamespacedHandler(name, namespace, namespacedName) {
 
 // Sets a preprocess function for every generated namespace.x binding. This can
 // be called multiple times for the same binding, and the preprocess functions will
-// be chained. If the binding has a custom getNamespacedHandler method, make sure that's
-// set before this function is used.
+// be chained. If the binding has a custom getNamespacedHandler method, make sure that
+// it's set before this function is used.
 function setDefaultNamespacedBindingPreprocessor(namespace, preprocessFn) {
     var handler = ko.getBindingHandler(namespace);
     if (handler) {
@@ -233,12 +239,6 @@ function setDefaultNamespacedBindingPreprocessor(namespace, preprocessFn) {
         };
     }
 }
-
-// ko.getBindingHandler will dynmically create namespaced bindings
-var oldGetHandler = ko.getBindingHandler;
-ko.getBindingHandler = function(bindingKey) {
-    return oldGetHandler(bindingKey) || createNamespacedBindingHandler(bindingKey);
-};
 
 function autoNamespacedPreprocessor(value, binding, addBinding) {
     if (value.charAt(0) !== "{")

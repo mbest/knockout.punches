@@ -1,3 +1,11 @@
+ko.punches.interpolationMarkup = {
+    wrapExpresssion: function(expressionText) {
+        var nodes = [];
+        nodes.push(document.createComment("ko text:" + expressionText));
+        nodes.push(document.createComment("/ko"));
+        return nodes;
+    }
+};
 // Performance comparison at http://jsperf.com/markup-interpolation-comparison
 function interpolationMarkupPreprocessor(node) {
     // only needs to work with text nodes
@@ -8,8 +16,7 @@ function interpolationMarkupPreprocessor(node) {
                 nodes.push(document.createTextNode(text));
         }
         function wrapExpr(expressionText) {
-            nodes.push(document.createComment("ko text:" + expressionText));
-            nodes.push(document.createComment("/ko"));
+            nodes = nodes.concat(ko.punches.interpolationMarkup.wrapExpresssion(expressionText));
         }
         function innerParse(text) {
             var innerMatch = text.match(/^([\s\S]*?)}}([\s\S]*)\{\{([\s\S]*)$/);
@@ -49,7 +56,6 @@ function enableInterpolationMarkup() {
 }
 
 // Export the preprocessor functions
-ko.punches.interpolationMarkup = {
-    preprocessor: interpolationMarkupPreprocessor,
-    enable: enableInterpolationMarkup
-};
+ko.punches.interpolationMarkup.preprocessor = interpolationMarkupPreprocessor;
+ko.punches.interpolationMarkup.enable = enableInterpolationMarkup;
+

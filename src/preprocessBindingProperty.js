@@ -34,6 +34,6 @@ function propertyPreprocessor(value, binding, addBinding) {
 }
 
 // Export the preprocessor functions
-ko.punches.preprocessBindingProperty = {
+ko_punches.preprocessBindingProperty = {
     setPreprocessor: setBindingPropertyPreprocessor
 };

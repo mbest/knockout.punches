@@ -14,7 +14,7 @@ function enableExpressionCallback(bindingKeyOrHandler, args) {
 }
 
 // Export the preprocessor functions
-ko.punches.expressionCallback = {
+ko_punches.expressionCallback = {
     makePreprocessor: makeExpressionCallbackPreprocessor,
     eventPreprocessor: eventExpressionPreprocessor,
     enableForBinding: enableExpressionCallback

@@ -15,7 +15,7 @@ function enableWrappedCallback(bindingKeyOrHandler) {
 }
 
 // Export the preprocessor functions
-ko.punches.wrappedCallback = {
+ko_punches.wrappedCallback = {
     preprocessor: wrappedCallbackPreprocessor,
     enableForBinding: enableWrappedCallback
 };

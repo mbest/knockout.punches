@@ -57,10 +57,34 @@ function setBindingHandlerCreator(matchRegex, callbackFn) {
 }
 
 // Create "punches" object and export utility functions
-ko.punches = {
+var ko_punches = ko.punches = {
     utils: {
         setBindingPreprocessor: setBindingPreprocessor,
         setNodePreprocessor: setNodePreprocessor,
         setBindingHandlerCreator: setBindingHandlerCreator
     }
+};
+
+ko_punches.enableAll = function () {
+    // Enable interpolation markup
+    enableInterpolationMarkup();
+
+    // Enable auto-namspacing of attr, css, event, and style
+    enableAutoNamespacedSyntax('attr');
+    enableAutoNamespacedSyntax('css');
+    enableAutoNamespacedSyntax('event');
+    enableAutoNamespacedSyntax('style');
+
+    // Enable filter syntax for text and attr
+    enableTextFilter('text');
+    setDefaultNamespacedBindingPreprocessor('attr', filterPreprocessor);
+
+    // Enable wrapped callbacks for click, submit, event, optionsAfterRender, and template options
+    enableWrappedCallback('click');
+    enableWrappedCallback('submit');
+    enableWrappedCallback('optionsAfterRender');
+    setDefaultNamespacedBindingPreprocessor('event', wrappedCallbackPreprocessor);
+    setBindingPropertyPreprocessor('template', 'beforeRemove', wrappedCallbackPreprocessor);
+    setBindingPropertyPreprocessor('template', 'afterAdd', wrappedCallbackPreprocessor);
+    setBindingPropertyPreprocessor('template', 'afterRender', wrappedCallbackPreprocessor);
 };

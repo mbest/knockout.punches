@@ -17,7 +17,7 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Knockout.Punches 0.1.0</h1>
+        <h1>Knockout.Punches 0.2.0</h1>
         <p>Enhanced binding syntaxes for Knockout 3+</p>
         <p class="view"><a href="https://github.com/mbest/knockout.punches">View the Project on GitHub <small>mbest/knockout.punches</small></a></p>
         <ul>
@@ -30,7 +30,11 @@
         <h2>
 <a name="knockoutpunches" class="anchor" href="#knockoutpunches"><span class="octicon octicon-link"></span></a>Knockout.Punches</h2>
 
-<p>Using the new APIs in <a href="https://github.com/knockout/knockout/releases/tag/v3.0.0beta">Knockout 3.0.0</a>, this plugin provides a set of enhanced binding syntaxes.</p>
+<p>Using the new APIs in <a href="https://github.com/knockout/knockout/releases/tag/v3.0.0beta">Knockout 3.0.0</a>, this plugin provides a set of enhanced binding syntaxes.
+Each syntax can be enabled individually as described in the sections below. But generally you’ll just enable everything as follows:</p>
+
+<div class="highlight"><pre><span class="nx">ko</span><span class="p">.</span><span class="nx">punches</span><span class="p">.</span><span class="nx">enableAll</span><span class="p">();</span>
+</pre></div>
 
 <h3>
 <a name="embedded-text-bindings" class="anchor" href="#embedded-text-bindings"><span class="octicon octicon-link"></span></a>Embedded text bindings</h3>
@@ -161,9 +165,21 @@
 </ul>
 </li>
 <li>
+<code>.enableAll()</code> - Enables the enhanced syntaxes as follows:
+<ul>
+<li><em>embedded text</em>;</li>
+<li><em>filters</em> for the <code>text</code> and <code>attr</code> bindings;</li>
+<li><em>automatic namespacing</em> for the <code>attr</code>, <code>css</code>, <code>event</code>, and <code>style</code> bindings;</li>
+<li><em>wrapped callbacks</em> for the <code>click</code>, <code>submit</code>, and <code>event</code> bindings,
+as well as for <code>optionsAfterRender</code>, <code>template#beforeRemove</code>, <code>template#afterAdd</code>, and <code>template#afterRender</code>.</li>
+</ul>
+</li>
+<li>
 <code>.interpolationMarkup</code>
 
 <ul>
+<li>
+<code>.wrapExpresssion(expressionText)</code> - The default version of this function returns a pair of comment nodes for a text binding. By replacing this function, you can define your own extensions to the syntax. The function must return an array of nodes to add.</li>
 <li>
 <code>.preprocessor(node)</code> - The preprocess function for the embedded text bindings syntax.</li>
 <li>

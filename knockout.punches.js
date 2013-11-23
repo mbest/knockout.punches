@@ -3,9 +3,17 @@
  * Enhanced binding syntaxes for Knockout 3+
  * (c) Michael Best
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
- * Version 0.1.1
+ * Version 0.2.0
  */
-(function() {
+(function (factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['knockout'], factory);
+    } else {
+        // Browser globals
+        factory(ko);
+    }
+}(function(ko) {
 // Add a preprocess funtion to a binding handler.
 function setBindingPreprocessor(bindingKeyOrHandler, preprocessFn) {
     chainPreprocessor(getOrCreateHandler(bindingKeyOrHandler), 'preprocess', preprocessFn);
@@ -65,12 +73,36 @@ function setBindingHandlerCreator(matchRegex, callbackFn) {
 }
 
 // Create "punches" object and export utility functions
-ko.punches = {
+var ko_punches = ko.punches = {
     utils: {
         setBindingPreprocessor: setBindingPreprocessor,
         setNodePreprocessor: setNodePreprocessor,
         setBindingHandlerCreator: setBindingHandlerCreator
     }
+};
+
+ko_punches.enableAll = function () {
+    // Enable interpolation markup
+    enableInterpolationMarkup();
+
+    // Enable auto-namspacing of attr, css, event, and style
+    enableAutoNamespacedSyntax('attr');
+    enableAutoNamespacedSyntax('css');
+    enableAutoNamespacedSyntax('event');
+    enableAutoNamespacedSyntax('style');
+
+    // Enable filter syntax for text and attr
+    enableTextFilter('text');
+    setDefaultNamespacedBindingPreprocessor('attr', filterPreprocessor);
+
+    // Enable wrapped callbacks for click, submit, event, optionsAfterRender, and template options
+    enableWrappedCallback('click');
+    enableWrappedCallback('submit');
+    enableWrappedCallback('optionsAfterRender');
+    setDefaultNamespacedBindingPreprocessor('event', wrappedCallbackPreprocessor);
+    setBindingPropertyPreprocessor('template', 'beforeRemove', wrappedCallbackPreprocessor);
+    setBindingPropertyPreprocessor('template', 'afterAdd', wrappedCallbackPreprocessor);
+    setBindingPropertyPreprocessor('template', 'afterRender', wrappedCallbackPreprocessor);
 };
 // Convert input in the form of `expression | filter1 | filter2:arg1:arg2` to a function call format
 // with filters accessed as ko.filters.filter1, etc.
@@ -173,7 +205,7 @@ filters.number = function(value) {
 ko.filters = filters;
 
 // Export the preprocessor functions
-ko.punches.textFilter = {
+ko_punches.textFilter = {
     preprocessor: filterPreprocessor,
     enableForBinding: enableTextFilter
 };
@@ -258,7 +290,7 @@ function enableAutoNamespacedSyntax(bindingKeyOrHandler) {
 }
 
 // Export the preprocessor functions
-ko.punches.namespacedBinding = {
+ko_punches.namespacedBinding = {
     defaultGetHandler: defaultGetNamespacedHandler,
     setDefaultBindingPreprocessor: setDefaultNamespacedBindingPreprocessor,
     preprocessor: autoNamespacedPreprocessor,
@@ -281,7 +313,7 @@ function enableWrappedCallback(bindingKeyOrHandler) {
 }
 
 // Export the preprocessor functions
-ko.punches.wrappedCallback = {
+ko_punches.wrappedCallback = {
     preprocessor: wrappedCallbackPreprocessor,
     enableForBinding: enableWrappedCallback
 };
@@ -321,7 +353,7 @@ function propertyPreprocessor(value, binding, addBinding) {
 }
 
 // Export the preprocessor functions
-ko.punches.preprocessBindingProperty = {
+ko_punches.preprocessBindingProperty = {
     setPreprocessor: setBindingPropertyPreprocessor
 };
 // Wrap an expression in an anonymous function so that it is called when the event happens
@@ -340,7 +372,7 @@ function enableExpressionCallback(bindingKeyOrHandler, args) {
 }
 
 // Export the preprocessor functions
-ko.punches.expressionCallback = {
+ko_punches.expressionCallback = {
     makePreprocessor: makeExpressionCallbackPreprocessor,
     eventPreprocessor: eventExpressionPreprocessor,
     enableForBinding: enableExpressionCallback
@@ -364,8 +396,7 @@ function interpolationMarkupPreprocessor(node) {
                 nodes.push(document.createTextNode(text));
         }
         function wrapExpr(expressionText) {
-            nodes.push(document.createComment("ko text:" + expressionText));
-            nodes.push(document.createComment("/ko"));
+            nodes.push.apply(nodes, ko_punches_interpolationMarkup.wrapExpresssion(expressionText));
         }
         function innerParse(text) {
             var innerMatch = text.match(/^([\s\S]*?)}}([\s\S]*)\{\{([\s\S]*)$/);
@@ -400,13 +431,21 @@ function interpolationMarkupPreprocessor(node) {
     }
 }
 
+function wrapExpresssion(expressionText) {
+    return [
+        document.createComment("ko text:" + expressionText),
+        document.createComment("/ko")
+    ];
+};
+
 function enableInterpolationMarkup() {
     setNodePreprocessor(interpolationMarkupPreprocessor);
 }
 
 // Export the preprocessor functions
-ko.punches.interpolationMarkup = {
+var ko_punches_interpolationMarkup = ko_punches.interpolationMarkup = {
     preprocessor: interpolationMarkupPreprocessor,
-    enable: enableInterpolationMarkup
+    enable: enableInterpolationMarkup,
+    wrapExpresssion: wrapExpresssion
 };
-}());
+}));

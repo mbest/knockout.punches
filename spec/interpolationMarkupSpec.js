@@ -77,4 +77,19 @@ describe("Interpolation Markup bindings", function() {
         ko.applyBindings(null, testNode);
         expect(testNode).toContainText("hello }}'name'!{{");
     });
+
+    it('Should be able to override wrapExpresssion to define a different set of elements', function() {
+        var originalWrapExpresssion = ko.punches.interpolationMarkup.wrapExpresssion;
+        this.after(function() {
+            ko.punches.interpolationMarkup.wrapExpresssion = originalWrapExpresssion;
+        });
+
+        ko.punches.interpolationMarkup.wrapExpresssion = function(expressionText) {
+            return originalWrapExpresssion('"--" + ' + expressionText + ' + "--"');
+        }
+
+        testNode.innerHTML = "hello {{'name'}}!";
+        ko.applyBindings(null, testNode);
+        expect(testNode).toContainText("hello --name--!");
+    });
 });

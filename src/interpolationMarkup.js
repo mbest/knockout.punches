@@ -8,8 +8,7 @@ function interpolationMarkupPreprocessor(node) {
                 nodes.push(document.createTextNode(text));
         }
         function wrapExpr(expressionText) {
-            nodes.push(document.createComment("ko text:" + expressionText));
-            nodes.push(document.createComment("/ko"));
+            nodes.push.apply(nodes, ko.punches.interpolationMarkup.wrapExpresssion(expressionText));
         }
         function innerParse(text) {
             var innerMatch = text.match(/^([\s\S]*?)}}([\s\S]*)\{\{([\s\S]*)$/);
@@ -44,6 +43,13 @@ function interpolationMarkupPreprocessor(node) {
     }
 }
 
+function wrapExpresssion(expressionText) {
+    return [
+        document.createComment("ko text:" + expressionText),
+        document.createComment("/ko")
+    ];
+};
+
 function enableInterpolationMarkup() {
     setNodePreprocessor(interpolationMarkupPreprocessor);
 }
@@ -51,5 +57,6 @@ function enableInterpolationMarkup() {
 // Export the preprocessor functions
 ko.punches.interpolationMarkup = {
     preprocessor: interpolationMarkupPreprocessor,
-    enable: enableInterpolationMarkup
+    enable: enableInterpolationMarkup,
+    wrapExpresssion: wrapExpresssion
 };

@@ -5,4 +5,12 @@
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
  * Version 0.1.1
  */
-(function() {
+(function (factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['knockout'], factory);
+    } else {
+        // Browser globals
+        factory(ko);
+    }
+}(function(ko) {

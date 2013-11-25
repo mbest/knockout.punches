@@ -75,7 +75,7 @@ function autoNamespacedPreprocessor(value, binding, addBinding) {
 
 // Set the namespaced preprocessor for a specific binding
 function enableAutoNamespacedSyntax(bindingKeyOrHandler) {
-    setBindingPreprocessor(bindingKeyOrHandler, autoNamespacedPreprocess);
+    setBindingPreprocessor(bindingKeyOrHandler, autoNamespacedPreprocessor);
 }
 
 // Export the preprocessor functions

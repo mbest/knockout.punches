@@ -237,9 +237,9 @@ describe('Auto namespaced bindings', function() {
                                 lastSubKey = subKey;
                         }
                     };
-                },
-                preprocess: ko.punches.namespacedBinding.preprocessor
+                }
             };
+            ko.punches.namespacedBinding.enableForBinding('a');
             testNode.innerHTML = "<div data-bind='a: {b: true, c: myObservable}'></div>";
             ko.applyBindings({ myObservable: observable }, testNode);
             expect(lastSubKey).toEqual("b");

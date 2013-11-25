@@ -3,7 +3,7 @@
  * Enhanced binding syntaxes for Knockout 3+
  * (c) Michael Best
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
- * Version 0.2.0
+ * Version 0.2.1
  */
 (function (factory) {
     if (typeof define === 'function' && define.amd) {

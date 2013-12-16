@@ -1,6 +1,6 @@
 // Add a preprocess funtion to a binding handler.
 function setBindingPreprocessor(bindingKeyOrHandler, preprocessFn) {
-    chainPreprocessor(getOrCreateHandler(bindingKeyOrHandler), 'preprocess', preprocessFn);
+    return chainPreprocessor(getOrCreateHandler(bindingKeyOrHandler), 'preprocess', preprocessFn);
 }
 
 // These utility functions are separated out because they're also used by
@@ -27,6 +27,7 @@ function chainPreprocessor(obj, prop, fn) {
     } else {
         obj[prop] = fn;
     }
+    return obj;
 }
 
 // Add a preprocessNode function to the binding provider. If a

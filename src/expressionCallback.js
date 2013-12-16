@@ -24,7 +24,6 @@ ko_punches.expressionCallback = {
 ko.bindingHandlers.on = {
     getNamespacedHandler: function(eventName) {
         var handler = ko.getBindingHandler('event' + namespaceDivider + eventName);
-        setBindingPreprocessor(handler, eventExpressionPreprocessor);
-        return handler;
+        return setBindingPreprocessor(handler, eventExpressionPreprocessor);
     }
 };

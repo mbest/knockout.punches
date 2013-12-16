@@ -3,7 +3,7 @@
  * Enhanced binding syntaxes for Knockout 3+
  * (c) Michael Best
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
- * Version 0.2.1
+ * Version 0.2.2
  */
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
@@ -16,7 +16,7 @@
 }(function(ko) {
 // Add a preprocess funtion to a binding handler.
 function setBindingPreprocessor(bindingKeyOrHandler, preprocessFn) {
-    chainPreprocessor(getOrCreateHandler(bindingKeyOrHandler), 'preprocess', preprocessFn);
+    return chainPreprocessor(getOrCreateHandler(bindingKeyOrHandler), 'preprocess', preprocessFn);
 }
 
 // These utility functions are separated out because they're also used by
@@ -43,6 +43,7 @@ function chainPreprocessor(obj, prop, fn) {
     } else {
         obj[prop] = fn;
     }
+    return obj;
 }
 
 // Add a preprocessNode function to the binding provider. If a
@@ -382,8 +383,7 @@ ko_punches.expressionCallback = {
 ko.bindingHandlers.on = {
     getNamespacedHandler: function(eventName) {
         var handler = ko.getBindingHandler('event' + namespaceDivider + eventName);
-        setBindingPreprocessor(handler, eventExpressionPreprocessor);
-        return handler;
+        return setBindingPreprocessor(handler, eventExpressionPreprocessor);
     }
 };
 // Performance comparison at http://jsperf.com/markup-interpolation-comparison

@@ -254,3 +254,32 @@ describe('Auto namespaced bindings', function() {
         }
     });
 });
+
+describe('Default namespaced binding preprocessor', function() {
+    beforeEach(jasmine.prepareTestNode);
+
+    it('Should run preprocessor for dynamically created binding', function() {
+        this.after(function() {
+            delete ko.bindingHandlers['a'];
+            delete ko.bindingHandlers['a.b'];
+            delete ko.bindingHandlers['a.c'];
+        });
+
+        var value;
+        ko.bindingHandlers['a'] = {
+            getNamespacedHandler: function(subKey) {
+                return {
+                    init: function(element, valueAccessor) {
+                        value = valueAccessor();
+                    }
+                };
+            }
+        };
+        ko.punches.namespacedBinding.setDefaultBindingPreprocessor('a', function() {
+            return '"new value"';
+        });
+        testNode.innerHTML = "<div data-bind='a.b: \"old value\"'></div>";
+        ko.applyBindings(null, testNode);
+        expect(value).toEqual('new value');
+    });
+});

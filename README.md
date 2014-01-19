@@ -2,7 +2,7 @@
 
 Using the new APIs in [Knockout 3.0.0](https://github.com/knockout/knockout/releases/tag/v3.0.0beta), this plugin provides a set of enhanced binding syntaxes.
 
-1. Embedded text bindings
+1. Embedded text and attribute bindings
 2. Text filters
 3. Namespaced dynamic bindings
 4. Wrapped event callbacks

@@ -68,12 +68,13 @@ var ko_punches_interpolationMarkup = ko_punches.interpolationMarkup = {
 };
 
 
+var dataBind = 'data-bind';
 function attributeInterpolationMarkerPreprocessor(node) {
     if (node.nodeType === 1 && node.attributes.length) {
-        var dataBindAttribute = node.getAttribute('data-bind');
+        var dataBindAttribute = node.getAttribute(dataBind);
         for (var attrs = node.attributes, i = attrs.length-1; i >= 0; --i) {
             var attr = attrs[i];
-            if (attr.specified && attr.name != 'data-bind' && attr.value.indexOf('{{') !== -1) {
+            if (attr.specified && attr.name != dataBind && attr.value.indexOf('{{') !== -1) {
                 var parts = [], attrBinding = 0;
                 function addText(text) {
                     if (text)
@@ -98,7 +99,7 @@ function attributeInterpolationMarkerPreprocessor(node) {
                     } else {
                         dataBindAttribute += ',' + attrBinding;
                     }
-                    node.setAttribute('data-bind', dataBindAttribute);
+                    node.setAttribute(dataBind, dataBindAttribute);
                     node.removeAttributeNode(attr);
                 }
             }

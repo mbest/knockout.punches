@@ -3,7 +3,7 @@
  * Enhanced binding syntaxes for Knockout 3+
  * (c) Michael Best
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
- * Version 0.2.2
+ * Version 0.3.0
  */
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
@@ -387,6 +387,30 @@ ko.bindingHandlers.on = {
     }
 };
 // Performance comparison at http://jsperf.com/markup-interpolation-comparison
+function parseInterpolationMarkup(textToParse, outerTextCallback, expressionCallback) {
+    function innerParse(text) {
+        var innerMatch = text.match(/^([\s\S]*?)}}([\s\S]*)\{\{([\s\S]*)$/);
+        if (innerMatch) {
+            expressionCallback(innerMatch[1]);
+            outerParse(innerMatch[2]);
+            expressionCallback(innerMatch[3]);
+        } else {
+            expressionCallback(text);
+        }
+    }
+    function outerParse(text) {
+        var outerMatch = text.match(/^([\s\S]*?)\{\{([\s\S]*)}}([\s\S]*)$/);
+        if (outerMatch) {
+            outerTextCallback(outerMatch[1]);
+            innerParse(outerMatch[2]);
+            outerTextCallback(outerMatch[3]);
+        } else {
+            outerTextCallback(text);
+        }
+    }
+    outerParse(textToParse);
+}
+
 function interpolationMarkupPreprocessor(node) {
     // only needs to work with text nodes
     if (node.nodeType === 3 && node.nodeValue && node.nodeValue.indexOf('{{') !== -1) {
@@ -396,29 +420,11 @@ function interpolationMarkupPreprocessor(node) {
                 nodes.push(document.createTextNode(text));
         }
         function wrapExpr(expressionText) {
-            nodes.push.apply(nodes, ko_punches_interpolationMarkup.wrapExpresssion(expressionText));
+            if (expressionText)
+                nodes.push.apply(nodes, ko_punches_interpolationMarkup.wrapExpresssion(expressionText));
         }
-        function innerParse(text) {
-            var innerMatch = text.match(/^([\s\S]*?)}}([\s\S]*)\{\{([\s\S]*)$/);
-            if (innerMatch) {
-                wrapExpr(innerMatch[1]);
-                outerParse(innerMatch[2]);
-                wrapExpr(innerMatch[3]);
-            } else {
-                wrapExpr(text);
-            }
-        }
-        function outerParse(text) {
-            var outerMatch = text.match(/^([\s\S]*?)\{\{([\s\S]*)}}([\s\S]*)$/);
-            if (outerMatch) {
-                addTextNode(outerMatch[1]);
-                innerParse(outerMatch[2]);
-                addTextNode(outerMatch[3]);
-            } else {
-                addTextNode(text);
-            }
-        }
-        outerParse(node.nodeValue);
+        parseInterpolationMarkup(node.nodeValue, addTextNode, wrapExpr)
+
         if (nodes.length > 1) {
             if (node.parentNode) {
                 for (var i = 0; i < nodes.length; i++) {
@@ -447,5 +453,54 @@ var ko_punches_interpolationMarkup = ko_punches.interpolationMarkup = {
     preprocessor: interpolationMarkupPreprocessor,
     enable: enableInterpolationMarkup,
     wrapExpresssion: wrapExpresssion
+};
+
+
+var dataBind = 'data-bind';
+function attributeInterpolationMarkerPreprocessor(node) {
+    if (node.nodeType === 1 && node.attributes.length) {
+        var dataBindAttribute = node.getAttribute(dataBind);
+        for (var attrs = node.attributes, i = attrs.length-1; i >= 0; --i) {
+            var attr = attrs[i];
+            if (attr.specified && attr.name != dataBind && attr.value.indexOf('{{') !== -1) {
+                var parts = [], attrBinding = 0;
+                function addText(text) {
+                    if (text)
+                        parts.push('"' + text.replace(/"/g, '\\"') + '"');
+                }
+                function addExpr(expressionText) {
+                    if (expressionText) {
+                        attrBinding = expressionText;
+                        parts.push('ko.unwrap(' + expressionText + ')');
+                    }
+                }
+                parseInterpolationMarkup(attr.value, addText, addExpr);
+
+                if (parts.length > 1) {
+                    attrBinding = '""+' + parts.join('+');
+                }
+
+                if (attrBinding) {
+                    attrBinding = 'attr.' + attr.name + ':' + attrBinding;
+                    if (!dataBindAttribute) {
+                        dataBindAttribute = attrBinding
+                    } else {
+                        dataBindAttribute += ',' + attrBinding;
+                    }
+                    node.setAttribute(dataBind, dataBindAttribute);
+                    node.removeAttributeNode(attr);
+                }
+            }
+        }
+    }
+}
+
+function enableAttributeInterpolationMarkup() {
+    setNodePreprocessor(attributeInterpolationMarkerPreprocessor);
+}
+
+var ko_punches_attributeInterpolationMarkup = ko_punches.attributeInterpolationMarkup = {
+    preprocessor: attributeInterpolationMarkerPreprocessor,
+    enable: enableAttributeInterpolationMarkup
 };
 }));

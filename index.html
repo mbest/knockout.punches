@@ -17,7 +17,7 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Knockout.Punches 0.2.0</h1>
+        <h1>Knockout.Punches 0.3.0</h1>
         <p>Enhanced binding syntaxes for Knockout 3+</p>
         <p class="view"><a href="https://github.com/mbest/knockout.punches">View the Project on GitHub <small>mbest/knockout.punches</small></a></p>
         <ul>
@@ -47,6 +47,18 @@ Each syntax can be enabled individually as described in the sections below. But 
 <p>This method works by converting <code>{{expression}}</code> markup to <code>&lt;!--ko text:expression--&gt;&lt;!--/ko--&gt;</code> before binding.</p>
 
 <p>To enable this syntax, call <code>ko.punches.interpolationMarkup.enable();</code>. </p>
+
+<h3>
+<a name="embedded-attribute-bindings" class="anchor" href="#embedded-attribute-bindings"><span class="octicon octicon-link"></span></a>Embedded attribute bindings</h3>
+
+<p>Rather than using the <a href="http://knockoutjs.com/documentation/attr-binding.html"><code>attr</code></a> binding, you can use double curly-brace syntax to insert dynamic attributes. For example:</p>
+
+<div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">title=</span><span class="s">"{{myTitle}}"</span><span class="nt">&gt;</span>Element content<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+
+<p>This method works by converting <code>title="{{expression}}"</code> markup to <code>data-bind="attr.title: expression"</code> before binding. It intelligently handles multiple expressions intermixed with text, and multiple attribute bindings. For example, <code>"This is the {{which}} option."</code> is converted to <code>"This is the " + ko.unwrap(which) + " option."</code>. Note that embedded bindings may not work correctly for all attributes.</p>
+
+<p>To enable this syntax, call <code>ko.punches.attributeInterpolationMarkup.enable();</code>. </p>
 
 <h3>
 <a name="text-filters" class="anchor" href="#text-filters"><span class="octicon octicon-link"></span></a>Text filters</h3>
@@ -184,6 +196,16 @@ as well as for <code>optionsAfterRender</code>, <code>template#beforeRemove</cod
 <code>.preprocessor(node)</code> - The preprocess function for the embedded text bindings syntax.</li>
 <li>
 <code>.enable()</code> - Enables the embedded text bindings syntax.</li>
+</ul>
+</li>
+<li>
+<code>.attributeInterpolationMarkup</code>
+
+<ul>
+<li>
+<code>.preprocessor(node)</code> - The preprocess function for the embedded attribute bindings syntax.</li>
+<li>
+<code>.enable()</code> - Enables the embedded attribute bindings syntax.</li>
 </ul>
 </li>
 <li>

@@ -45,6 +45,33 @@ describe("Interpolation Markup preprocessor", function() {
     });
 });
 
+describe("Unescaped HTML Interpolation Markup preprocessor", function() {
+    it('Should not parse unclosed binding', function() {
+        var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ text"));
+        expect(result).toBeUndefined();
+    });
+
+    it('Should not parse unopened binding', function() {
+        var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some }}} text"));
+        expect(result).toBeUndefined();
+    });
+
+    it('Should create binding from {{...}} expression', function() {
+        var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ expr }}} text"));
+        expect(result).toHaveNodeTypes([3, 1, 3]); // Text, element, text
+    });
+
+    it('Should ignore unmatched delimiters', function() {
+        var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ expr }}} }}} text"));
+        expect(result).toHaveNodeTypes([3, 1, 3]); // Text, element, text
+    });
+
+    it('Should support two expressions', function() {
+        var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ expr1 }}} middle {{{ expr2 }}} text"));
+        expect(result).toHaveNodeTypes([3, 1, 3, 1, 3]); // Text, element, text
+    });
+});
+
 describe("Interpolation Markup bindings", function() {
     beforeEach(jasmine.prepareTestNode);
 

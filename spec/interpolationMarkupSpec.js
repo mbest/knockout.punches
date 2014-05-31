@@ -86,13 +86,13 @@ describe("Interpolation Markup bindings", function() {
         expect(testNode).toContainText("The best fun.");
     });
 
-    it('Should be able to override wrapExpresssion to define a different set of elements', function() {
-        var originalWrapExpresssion = ko.punches.interpolationMarkup.wrapExpresssion;
+    it('Should be able to override wrapExpression to define a different set of elements', function() {
+        var originalWrapExpresssion = ko.punches.interpolationMarkup.wrapExpression;
         this.after(function() {
-            ko.punches.interpolationMarkup.wrapExpresssion = originalWrapExpresssion;
+            ko.punches.interpolationMarkup.wrapExpression = originalWrapExpresssion;
         });
 
-        ko.punches.interpolationMarkup.wrapExpresssion = function(expressionText) {
+        ko.punches.interpolationMarkup.wrapExpression = function(expressionText) {
             return originalWrapExpresssion('"--" + ' + expressionText + ' + "--"');
         }
 

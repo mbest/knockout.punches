@@ -33,7 +33,7 @@ function interpolationMarkupPreprocessor(node) {
         }
         function wrapExpr(expressionText) {
             if (expressionText)
-                nodes.push.apply(nodes, ko_punches_interpolationMarkup.wrapExpresssion(expressionText));
+                nodes.push.apply(nodes, ko_punches_interpolationMarkup.wrapExpression(expressionText));
         }
         parseInterpolationMarkup(node.nodeValue, addTextNode, wrapExpr)
 
@@ -49,7 +49,7 @@ function interpolationMarkupPreprocessor(node) {
     }
 }
 
-function wrapExpresssion(expressionText) {
+function wrapExpression(expressionText) {
     return [
         document.createComment("ko text:" + expressionText),
         document.createComment("/ko")
@@ -64,7 +64,7 @@ function enableInterpolationMarkup() {
 var ko_punches_interpolationMarkup = ko_punches.interpolationMarkup = {
     preprocessor: interpolationMarkupPreprocessor,
     enable: enableInterpolationMarkup,
-    wrapExpresssion: wrapExpresssion
+    wrapExpression: wrapExpression
 };
 
 

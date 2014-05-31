@@ -50,10 +50,18 @@ function interpolationMarkupPreprocessor(node) {
 }
 
 function wrapExpression(expressionText) {
-    return [
-        document.createComment("ko text:" + expressionText),
-        document.createComment("/ko")
-    ];
+    var nodes = [];
+
+    // Triple-bracket handlebars {{{ ... }}} for unescaped HTML
+    if (expressionText[0] === '{' && expressionText[expressionText.length - 1] === '}') {
+        var div = document.createElement('div');
+        div.setAttribute('data-bind', 'html:' + expressionText.slice(1, -1));
+        nodes.push(div);
+    } else {
+        nodes.push(document.createComment("ko text:" + expressionText));
+        nodes.push(document.createComment("/ko"));
+    }
+    return nodes;
 };
 
 function enableInterpolationMarkup() {

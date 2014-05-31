@@ -1,4 +1,4 @@
-// Add a preprocess funtion to a binding handler.
+// Add a preprocess function to a binding handler.
 function setBindingPreprocessor(bindingKeyOrHandler, preprocessFn) {
     return chainPreprocessor(getOrCreateHandler(bindingKeyOrHandler), 'preprocess', preprocessFn);
 }
@@ -76,8 +76,9 @@ ko_punches.enableAll = function () {
     enableAutoNamespacedSyntax('event');
     enableAutoNamespacedSyntax('style');
 
-    // Enable filter syntax for text and attr
+    // Enable filter syntax for text, html, and attr
     enableTextFilter('text');
+    enableTextFilter('html');
     setDefaultNamespacedBindingPreprocessor('attr', filterPreprocessor);
 
     // Enable wrapped callbacks for click, submit, event, optionsAfterRender, and template options

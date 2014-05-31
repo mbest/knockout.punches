@@ -1,3 +1,5 @@
+Fork for enabling triple-bracket handlebars to output unescaped HTML (from [http://handlebarsjs.com/](http://handlebarsjs.com/))
+
 ## Knockout.Punches
 
 Using the new APIs in [Knockout 3.0.0](https://github.com/knockout/knockout/releases/tag/v3.0.0beta), this plugin provides a set of enhanced binding syntaxes.

@@ -59,10 +59,10 @@ filters.lowercase = function(value) {
 // Return default value if the input value is empty or null
 filters['default'] = function (value, defaultValue) {
     if (typeof value === "function") {
-        value = $.trim(value());
+        value = String.prototype.trim.call(value());
     }
     if (typeof value === "string") {
-        value = $.trim(value);
+        value = String.prototype.trim.call(value);
     }
     return (value === '' || value.length == 0 || value == null) ? defaultValue : value;
 };

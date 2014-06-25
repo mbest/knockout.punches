@@ -139,7 +139,7 @@ function attributeInterpolationMarkerPreprocessor(node) {
 }
 
 function attributeBinding(name, value, node) {
-    if (name === 'value' || name === 'checked') {
+    if (ko.getBindingHandler(name)) {
         return name + ':' + value;
     } else {
         return 'attr.' + name + ':' + value;

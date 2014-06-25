@@ -300,16 +300,25 @@ describe("Attribute Interpolation Markup preprocessor", function() {
         expect(testNode.getAttribute('data-bind')).toEqual('attr.data-test:expr3,attr.id:expr2,attr.title:expr1'); // the order shouldn't matter
     });
 
+    it('Should convert value and checked attributes to two-way bindings', function() {
+        var input = document.createElement('input');
+        input.type = 'checkbox';
+        input.setAttribute('value', "{{expr1}}");
+        input.setAttribute('checked', "{{expr2}}");
+        ko.punches.attributeInterpolationMarkup.preprocessor(input);
+        expect(input.getAttribute('data-bind')).toEqual('checked:expr2,value:expr1');
+    });
+
     it('Should support custom attribute binding using "attributeBinding" extension point', function() {
         var originalAttributeBinding = ko.punches.attributeInterpolationMarkup.attributeBinding;
         this.after(function() {
             ko.punches.attributeInterpolationMarkup.attributeBinding = originalAttributeBinding;
         });
 
-        ko.punches.attributeInterpolationMarkup.attributeBinding = function(name, value) {
+        ko.punches.attributeInterpolationMarkup.attributeBinding = function(name, value, node) {
             var parsedName = name.match(/^ko-(.*)$/);
             if (parsedName) {
-                return originalAttributeBinding(parsedName[1], value);
+                return originalAttributeBinding(parsedName[1], value, node);
             }
         }
         // Won't be in data-bind because it doesn't include an expression
@@ -319,7 +328,7 @@ describe("Attribute Interpolation Markup preprocessor", function() {
         // Should handle normal attributes normally
         testNode.setAttribute('title', "{{expr1}}");
         ko.punches.attributeInterpolationMarkup.preprocessor(testNode);
-        expect(testNode.getAttribute('data-bind')).toEqual('attr.title:expr1,attr.id:expr2'); // the order shouldn't matter
+        expect(testNode.getAttribute('data-bind')).toEqual('attr.title:expr1,attr.id:expr2');
     });
 });
 
@@ -377,5 +386,26 @@ describe("Attribute Interpolation Markup bindings", function() {
         expect(testNode.childNodes[0].title).toEqual("The best time.");
         observable('fun');
         expect(testNode.childNodes[0].title).toEqual("The best fun.");
+    });
+
+    it('Should convert value attribute to two-way binding', function() {
+        testNode.innerHTML = "<input value='{{value}}'/>";
+        var observable = ko.observable('default value');
+        ko.applyBindings({value: observable}, testNode);
+        expect(testNode.childNodes[0].value).toEqual("default value");
+
+        testNode.childNodes[0].value = 'user-enterd value';
+        ko.utils.triggerEvent(testNode.childNodes[0], 'change');
+        expect(observable()).toEqual("user-enterd value");
+    });
+
+    it('Should convert checked attribute to two-way binding', function() {
+        testNode.innerHTML = "<input type='checkbox' checked='{{isChecked}}'/>";
+        var observable = ko.observable(true);
+        ko.applyBindings({isChecked: observable}, testNode);
+        expect(testNode.childNodes[0].checked).toBe(true);
+
+        testNode.childNodes[0].click();
+        expect(observable()).toBe(false);
     });
 });

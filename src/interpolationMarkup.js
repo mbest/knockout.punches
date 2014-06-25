@@ -124,7 +124,7 @@ function attributeInterpolationMarkerPreprocessor(node) {
                 }
 
                 if (attrValue) {
-                    var attrBinding = ko_punches_attributeInterpolationMarkup.attributeBinding(attr.name, attrValue, node) || attributeBinding(attr.name, attrValue);
+                    var attrBinding = ko_punches_attributeInterpolationMarkup.attributeBinding(attr.name, attrValue, node) || attributeBinding(attr.name, attrValue, node);
                     if (!dataBindAttribute) {
                         dataBindAttribute = attrBinding
                     } else {
@@ -138,8 +138,12 @@ function attributeInterpolationMarkerPreprocessor(node) {
     }
 }
 
-function attributeBinding(name, value) {
-    return 'attr.' + name + ':' + value;
+function attributeBinding(name, value, node) {
+    if (name === 'value' || name === 'checked') {
+        return name + ':' + value;
+    } else {
+        return 'attr.' + name + ':' + value;
+    }
 }
 
 function enableAttributeInterpolationMarkup() {

@@ -69,6 +69,7 @@ var ko_punches = ko.punches = {
 ko_punches.enableAll = function () {
     // Enable interpolation markup
     enableInterpolationMarkup();
+    enableAttributeInterpolationMarkup();
 
     // Enable auto-namspacing of attr, css, event, and style
     enableAutoNamespacedSyntax('attr');

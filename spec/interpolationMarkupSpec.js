@@ -293,11 +293,33 @@ describe("Attribute Interpolation Markup preprocessor", function() {
 
     it('Should support expressions in multiple attributes', function() {
         testNode.setAttribute('title', "{{expr1}}");
-        testNode.setAttribute('class', "test");
+        testNode.setAttribute('class', "test");     // won't be in data-bind
         testNode.setAttribute('id', "{{expr2}}");
         testNode.setAttribute('data-test', "{{expr3}}");
         ko.punches.attributeInterpolationMarkup.preprocessor(testNode);
         expect(testNode.getAttribute('data-bind')).toEqual('attr.data-test:expr3,attr.id:expr2,attr.title:expr1'); // the order shouldn't matter
+    });
+
+    it('Should support custom attribute binding using "attributeBinding" extension point', function() {
+        var originalAttributeBinding = ko.punches.attributeInterpolationMarkup.attributeBinding;
+        this.after(function() {
+            ko.punches.attributeInterpolationMarkup.attributeBinding = originalAttributeBinding;
+        });
+
+        ko.punches.attributeInterpolationMarkup.attributeBinding = function(name, value) {
+            var parsedName = name.match(/^ko-(.*)$/);
+            if (parsedName) {
+                return originalAttributeBinding(parsedName[1], value);
+            }
+        }
+        // Won't be in data-bind because it doesn't include an expression
+        testNode.setAttribute('ko-class', "test");
+        // This will use the custom handler
+        testNode.setAttribute('ko-id', "{{expr2}}");
+        // Should handle normal attributes normally
+        testNode.setAttribute('title', "{{expr1}}");
+        ko.punches.attributeInterpolationMarkup.preprocessor(testNode);
+        expect(testNode.getAttribute('data-bind')).toEqual('attr.title:expr1,attr.id:expr2'); // the order shouldn't matter
     });
 });
 

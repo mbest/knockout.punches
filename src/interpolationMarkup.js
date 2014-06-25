@@ -106,25 +106,25 @@ function attributeInterpolationMarkerPreprocessor(node) {
         for (var attrs = node.attributes, i = attrs.length-1; i >= 0; --i) {
             var attr = attrs[i];
             if (attr.specified && attr.name != dataBind && attr.value.indexOf('{{') !== -1) {
-                var parts = [], attrBinding = 0;
+                var parts = [], attrValue = '';
                 function addText(text) {
                     if (text)
                         parts.push('"' + text.replace(/"/g, '\\"') + '"');
                 }
                 function addExpr(expressionText) {
                     if (expressionText) {
-                        attrBinding = expressionText;
+                        attrValue = expressionText;
                         parts.push('ko.unwrap(' + expressionText + ')');
                     }
                 }
                 parseInterpolationMarkup(attr.value, addText, addExpr);
 
                 if (parts.length > 1) {
-                    attrBinding = '""+' + parts.join('+');
+                    attrValue = '""+' + parts.join('+');
                 }
 
-                if (attrBinding) {
-                    attrBinding = 'attr.' + attr.name + ':' + attrBinding;
+                if (attrValue) {
+                    var attrBinding = ko_punches_attributeInterpolationMarkup.attributeBinding(attr.name, attrValue, node) || attributeBinding(attr.name, attrValue);
                     if (!dataBindAttribute) {
                         dataBindAttribute = attrBinding
                     } else {
@@ -138,11 +138,16 @@ function attributeInterpolationMarkerPreprocessor(node) {
     }
 }
 
+function attributeBinding(name, value) {
+    return 'attr.' + name + ':' + value;
+}
+
 function enableAttributeInterpolationMarkup() {
     setNodePreprocessor(attributeInterpolationMarkerPreprocessor);
 }
 
 var ko_punches_attributeInterpolationMarkup = ko_punches.attributeInterpolationMarkup = {
     preprocessor: attributeInterpolationMarkerPreprocessor,
-    enable: enableAttributeInterpolationMarkup
+    enable: enableAttributeInterpolationMarkup,
+    attributeBinding: attributeBinding
 };

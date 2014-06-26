@@ -1,23 +1,3 @@
-Fork for enabling triple-bracket handlebars to output unescaped HTML (same as [http://handlebarsjs.com/](http://handlebarsjs.com/)).
-
-Example:
-
-    var propertyWithHtml = '<h1>Hi <i>there</i></h1>';
-
-**With double brackets:**
-`{{ propertyWithHtml }}`
-
-**Output:**
-&lt;h1&gt;Hi &lt;i&gt;there&lt;/i&gt;&lt;/h1&gt;
-
-**With triple brackets:**
-`{{{ propertyWithHtml }}}`
-
-**Output:**
-#Hi _there_
-
-----
-
 ## Knockout.Punches
 
 Using the new APIs in [Knockout 3.0.0](https://github.com/knockout/knockout/releases/tag/v3.0.0beta), this plugin provides a set of enhanced binding syntaxes.

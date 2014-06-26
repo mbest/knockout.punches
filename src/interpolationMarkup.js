@@ -1,26 +1,23 @@
 // Performance comparison at http://jsperf.com/markup-interpolation-comparison
 function parseInterpolationMarkup(textToParse, outerTextCallback, expressionCallback) {
     function innerParse(text) {
-        var innerMatch = text.match(/^([\s\S]*?)}}([\s\S]*)\{\{([\s\S]*)$/);
+        var innerMatch = text.match(/^([\s\S]*)}}([\s\S]*?)\{\{([\s\S]*)$/);
         if (innerMatch) {
-            expressionCallback(innerMatch[1]);
-            outerParse(innerMatch[2]);
+            innerParse(innerMatch[1]);
+            outerTextCallback(innerMatch[2]);
             expressionCallback(innerMatch[3]);
         } else {
             expressionCallback(text);
         }
     }
-    function outerParse(text) {
-        var outerMatch = text.match(/^([\s\S]*?)\{\{([\s\S]*)}}([\s\S]*)$/);
-        if (outerMatch) {
-            outerTextCallback(outerMatch[1]);
-            innerParse(outerMatch[2]);
-            outerTextCallback(outerMatch[3]);
-        } else {
-            outerTextCallback(text);
-        }
+    var outerMatch = textToParse.match(/^([\s\S]*?)\{\{([\s\S]*)}}([\s\S]*)$/);
+    if (outerMatch) {
+        outerTextCallback(outerMatch[1]);
+        innerParse(outerMatch[2]);
+        outerTextCallback(outerMatch[3]);
+    } else {
+        outerTextCallback(textToParse);
     }
-    outerParse(textToParse);
 }
 
 function interpolationMarkupPreprocessor(node) {
@@ -49,18 +46,36 @@ function interpolationMarkupPreprocessor(node) {
     }
 }
 
+if (!ko.virtualElements.allowedBindings.html) {
+    // Virtual html binding
+    // SO Question: http://stackoverflow.com/a/15348139
+    var overridden = ko.bindingHandlers.html.update;
+    ko.bindingHandlers.html.update = function (element, valueAccessor) {
+        if (element.nodeType === 8) {
+            var html = ko.utils.unwrapObservable(valueAccessor());
+            if (html != null) {
+                var parsedNodes = ko.utils.parseHtmlFragment('' + html);
+                ko.virtualElements.setDomNodeChildren(element, parsedNodes);
+            } else {
+                ko.virtualElements.emptyNode(element);
+            }
+        } else {
+            overridden(element, valueAccessor);
+        }
+    };
+    ko.virtualElements.allowedBindings.html = true;
+}
+
 function wrapExpression(expressionText) {
     var nodes = [];
 
     // Triple-bracket handlebars {{{ ... }}} for unescaped HTML
     if (expressionText[0] === '{' && expressionText[expressionText.length - 1] === '}') {
-        var div = document.createElement('div');
-        div.setAttribute('data-bind', 'html:' + expressionText.slice(1, -1));
-        nodes.push(div);
+        nodes.push(document.createComment("ko html:" + expressionText.slice(1, -1)));
     } else {
         nodes.push(document.createComment("ko text:" + expressionText));
-        nodes.push(document.createComment("/ko"));
     }
+    nodes.push(document.createComment("/ko"));
     return nodes;
 };
 

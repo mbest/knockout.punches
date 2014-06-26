@@ -15,9 +15,14 @@ function parseInterpolationMarkup(textToParse, outerTextCallback, expressionCall
         outerTextCallback(outerMatch[1]);
         innerParse(outerMatch[2]);
         outerTextCallback(outerMatch[3]);
-    } else {
-        outerTextCallback(textToParse);
     }
+}
+
+function trim(string) {
+    return string == null ? '' :
+        string.trim ?
+            string.trim() :
+            string.toString().replace(/^[\s\xa0]+|[\s\xa0]+$/g, '');
 }
 
 function interpolationMarkupPreprocessor(node) {
@@ -30,16 +35,16 @@ function interpolationMarkupPreprocessor(node) {
         }
         function wrapExpr(expressionText) {
             if (expressionText)
-                nodes.push.apply(nodes, ko_punches_interpolationMarkup.wrapExpression(expressionText));
+                nodes.push.apply(nodes, ko_punches_interpolationMarkup.wrapExpression(trim(expressionText), node));
         }
         parseInterpolationMarkup(node.nodeValue, addTextNode, wrapExpr)
 
-        if (nodes.length > 1) {
+        if (nodes.length) {
             if (node.parentNode) {
-                for (var i = 0; i < nodes.length; i++) {
-                    node.parentNode.insertBefore(nodes[i], node);
+                for (var i = 0, n = nodes.length, parent = node.parentNode; i < n; ++i) {
+                    parent.insertBefore(nodes[i], node);
                 }
-                node.parentNode.removeChild(node);
+                parent.removeChild(node);
             }
             return nodes;
         }
@@ -66,17 +71,20 @@ if (!ko.virtualElements.allowedBindings.html) {
     ko.virtualElements.allowedBindings.html = true;
 }
 
-function wrapExpression(expressionText) {
-    var nodes = [];
+function wrapExpression(expressionText, node) {
+    var ownerDocument = node ? node.ownerDocument : document,
+        closeComment = ownerDocument.createComment("/ko"),
+        firstChar = expressionText[0];
 
-    // Triple-bracket handlebars {{{ ... }}} for unescaped HTML
-    if (expressionText[0] === '{' && expressionText[expressionText.length - 1] === '}') {
-        nodes.push(document.createComment("ko html:" + expressionText.slice(1, -1)));
+    if (firstChar === '#') {
+        return [ ownerDocument.createComment("ko " + expressionText.slice(1)) ];
+    } else if (firstChar === '/') {
+        return [ closeComment ];
+    } else if (firstChar === '{' && expressionText[expressionText.length - 1] === '}') {
+        return [ ownerDocument.createComment("ko html:" + expressionText.slice(1, -1)), closeComment ];
     } else {
-        nodes.push(document.createComment("ko text:" + expressionText));
+        return [ ownerDocument.createComment("ko text:" + expressionText), closeComment ];
     }
-    nodes.push(document.createComment("/ko"));
-    return nodes;
 };
 
 function enableInterpolationMarkup() {

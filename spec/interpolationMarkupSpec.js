@@ -43,32 +43,32 @@ describe("Interpolation Markup preprocessor", function() {
         var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("x {{ expr1 }} y {{ expr2 }} z {{ expr3 }}"));
         expect(result).toHaveNodeTypes([3, 8, 8, 3, 8, 8, 3, 8, 8]);   // text, comment, comment, text, comment, comment, text, comment, comment
     });
-});
 
-describe("Unescaped HTML Interpolation Markup preprocessor", function() {
-    it('Should not parse unclosed binding', function() {
-        var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ text"));
-        expect(result).toBeUndefined();
-    });
+    describe("Using unescaped HTML syntax", function() {
+        it('Should not parse unclosed binding', function() {
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ text"));
+            expect(result).toBeUndefined();
+        });
 
-    it('Should not parse unopened binding', function() {
-        var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some }}} text"));
-        expect(result).toBeUndefined();
-    });
+        it('Should not parse unopened binding', function() {
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some }}} text"));
+            expect(result).toBeUndefined();
+        });
 
-    it('Should create binding from {{{...}}} expression', function() {
-        var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ expr }}} text"));
-        expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
-    });
+        it('Should create binding from {{{...}}} expression', function() {
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ expr }}} text"));
+            expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
+        });
 
-    it('Should ignore unmatched delimiters', function() {
-        var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ expr }}} }}} text"));
-        expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
-    });
+        it('Should ignore unmatched delimiters', function() {
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ expr }}} }}} text"));
+            expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
+        });
 
-    it('Should support two expressions', function() {
-        var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ expr1 }}} middle {{{ expr2 }}} text"));
-        expect(result).toHaveNodeTypes([3, 8, 8, 3, 8, 8, 3]);   // text, comment, comment, text, comment, comment, text
+        it('Should support two expressions', function() {
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ expr1 }}} middle {{{ expr2 }}} text"));
+            expect(result).toHaveNodeTypes([3, 8, 8, 3, 8, 8, 3]);   // text, comment, comment, text, comment, comment, text
+        });
     });
 });
 
@@ -119,53 +119,85 @@ describe("Interpolation Markup bindings", function() {
             ko.punches.interpolationMarkup.wrapExpression = originalWrapExpresssion;
         });
 
-        ko.punches.interpolationMarkup.wrapExpression = function(expressionText) {
-            return originalWrapExpresssion('"--" + ' + expressionText + ' + "--"');
+        ko.punches.interpolationMarkup.wrapExpression = function(expressionText, node) {
+            return originalWrapExpresssion('"--" + ' + expressionText + ' + "--"', node);
         }
 
         testNode.innerText = "hello {{'name'}}!";
         ko.applyBindings(null, testNode);
         expect(testNode).toContainText("hello --name--!");
     });
-});
 
-describe("Unescaped HTML Interpolation Markup bindings", function() {
-    beforeEach(jasmine.prepareTestNode);
+    describe("Using unescaped HTML syntax", function() {
+        it('Should replace {{{...}}} expression with virtual html binding', function() {
+            testNode.innerText = "hello {{{'<b>name</b>'}}}!";
+            ko.applyBindings(null, testNode);
+            expect(testNode).toContainText("hello name!");
+            expect(testNode).toContainHtml("hello <!--ko html:'<b>name</b>'--><b>name</b><!--/ko-->!");
+            expect(testNode.children[0].nodeName.toLowerCase()).toEqual('b');
+        });
 
-    var savePreprocessNode = ko.bindingProvider.instance.preprocessNode;
-    beforeEach(ko.punches.interpolationMarkup.enable);
-    afterEach(function() { ko.bindingProvider.instance.preprocessNode = savePreprocessNode; });
+        it('Should support mix of escaped and unescape expressions', function() {
+            testNode.innerText = "hello {{{'<b>name</b>'}}}{{'!'}}";
+            ko.applyBindings(null, testNode);
+            expect(testNode).toContainText("hello name!");
+            expect(testNode).toContainHtml("hello <!--ko html:'<b>name</b>'--><b>name</b><!--/ko--><!--ko text:'!'-->!<!--/ko-->");
+            expect(testNode.children[0].nodeName.toLowerCase()).toEqual('b');
+        });
 
-    it('Should replace {{{...}}} expression with virtual html binding', function() {
-        testNode.innerText = "hello {{{'<b>name</b>'}}}!";
-        ko.applyBindings(null, testNode);
-        expect(testNode).toContainText("hello name!");
-        expect(testNode).toContainHtml("hello <!--ko html:'<b>name</b>'--><b>name</b><!--/ko-->!");
-        expect(testNode.children[0].nodeName.toLowerCase()).toEqual('b');
+        it('Should support any content of expression, including functions and {{{}}}', function() {
+            testNode.innerText = "hello {{{ (function(){return '<b>{{{name}}}</b>'}()) }}}!";
+            ko.applyBindings(null, testNode);
+            expect(testNode).toContainText("hello {{{name}}}!");
+            expect(testNode.children[0].nodeName.toLowerCase()).toEqual('b');
+        });
+
+        it('Should ignore unmatched }}} and {{{', function() {
+            testNode.innerText = "hello }}}'name'{{{'!'}}}{{{";
+            ko.applyBindings(null, testNode);
+            expect(testNode).toContainText("hello }}}'name'!{{{");
+        });
+
+        it('Should update when observable changes', function() {
+            testNode.innerText = "The best {{{what}}}.";
+            var observable = ko.observable('<b>time<b>');
+            ko.applyBindings({what: observable}, testNode);
+            expect(testNode).toContainText("The best time.");
+            expect(testNode.children[0].nodeName.toLowerCase()).toEqual('b');
+            observable('<i>fun</i>');
+            expect(testNode).toContainText("The best fun.");
+            expect(testNode.children[0].nodeName.toLowerCase()).toEqual('i');
+        });
     });
 
-    it('Should support any content of expression, including functions and {{}}', function() {
-        testNode.innerText = "hello {{{ (function(){return '<b>{{name}}</b>'}()) }}}!";
-        ko.applyBindings(null, testNode);
-        expect(testNode).toContainText("hello {{name}}!");
-        expect(testNode.children[0].nodeName.toLowerCase()).toEqual('b');
-    });
+    describe("Using block syntax", function() {
+        it('Should support "with"', function() {
+            testNode.innerHTML = "<div><h1>{{title}}</h1>{{#with: story}}<div>{{{intro}}}</div><div>{{{body}}}</div>{{/with}}</div>";
+            ko.applyBindings({
+                title: "First Post",
+                story: {
+                    intro: "Before the jump",
+                    body: "After the jump"
+                }
+            }, testNode);
+            expect(testNode).toContainHtmlElementsAndText("<div><h1>first post</h1><div>before the jump</div><div>after the jump</div></div>");
+        });
 
-    it('Should ignore unmatched }} and {{', function() {
-        testNode.innerText = "hello }}}'name'{{{'!'}}}{{{";
-        ko.applyBindings(null, testNode);
-        expect(testNode).toContainText("hello }}}'name'!{{{");
-    });
+        it('Should support "foreach"', function() {
+            testNode.innerHTML = "<ul>{{#foreach: people}}<li>{{$data}}</li>{{/foreach}}</ul>";
+            ko.applyBindings({
+                people: [ "Bill Gates", "Steve Jobs", "Larry Ellison" ]
+            }, testNode);
+            expect(testNode).toContainHtmlElementsAndText("<ul><li>bill gates</li><li>steve jobs</li><li>larry ellison</li></ul>");
+        });
 
-    it('Should update when observable changes', function() {
-        testNode.innerText = "The best {{{what}}}.";
-        var observable = ko.observable('<b>time<b>');
-        ko.applyBindings({what: observable}, testNode);
-        expect(testNode).toContainText("The best time.");
-        expect(testNode.children[0].nodeName.toLowerCase()).toEqual('b');
-        observable('<i>fun</i>');
-        expect(testNode).toContainText("The best fun.");
-        expect(testNode.children[0].nodeName.toLowerCase()).toEqual('i');
+        it('Should support nested blocks', function() {
+            testNode.innerHTML = "<ul>{{ #foreach: people }} {{ #if: $data }}<li>{{ $data }}</li>{{ /if }}{{ /foreach }}</ul>";
+            ko.applyBindings({
+                people: [ "Bill Gates", null, "Steve Jobs", "Larry Ellison" ]
+            }, testNode);
+            expect(testNode).toContainHtmlElementsAndText("<ul><li>bill gates</li><li>steve jobs</li><li>larry ellison</li></ul>");
+        });
     });
 });
 

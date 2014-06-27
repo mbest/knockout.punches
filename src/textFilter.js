@@ -56,9 +56,15 @@ filters.lowercase = function(value) {
     return String.prototype.toLowerCase.call(value);
 };
 
-// Return default value if the input value is blank or null
-filters['default'] = function(value, defaultValue) {
-    return (value === '' || value == null) ? defaultValue : value;
+// Return default value if the input value is empty or null
+filters['default'] = function (value, defaultValue) {
+    if (typeof value === "function") {
+        value = String.prototype.trim.call(value());
+    }
+    if (typeof value === "string") {
+        value = String.prototype.trim.call(value);
+    }
+    return (value === '' || value.length == 0 || value == null) ? defaultValue : value;
 };
 
 // Return the value with the search string replaced with the replacement string

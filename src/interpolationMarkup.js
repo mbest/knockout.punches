@@ -88,7 +88,7 @@ function wrapExpression(expressionText, node) {
 };
 
 function enableInterpolationMarkup() {
-    setNodePreprocessor(interpolationMarkupPreprocessor);
+    setNodePreprocessor(ko_punches_interpolationMarkup.preprocessor);
 }
 
 // Export the preprocessor functions
@@ -147,7 +147,7 @@ function attributeBinding(name, value, node) {
 }
 
 function enableAttributeInterpolationMarkup() {
-    setNodePreprocessor(attributeInterpolationMarkerPreprocessor);
+    setNodePreprocessor(ko_punches_attributeInterpolationMarkup.preprocessor);
 }
 
 var ko_punches_attributeInterpolationMarkup = ko_punches.attributeInterpolationMarkup = {

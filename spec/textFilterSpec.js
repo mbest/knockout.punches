@@ -36,23 +36,43 @@ describe("Text filters preprocessor", function() {
 
     it('Should convert text to uppercase using uppercase filter', function() {
         expect(eval(filterPreprocessor('"someText" | uppercase'))).toEqual('SOMETEXT');
+        // Should unwrap observable value
+        expect(eval(filterPreprocessor('ko.observable("someText") | uppercase'))).toEqual('SOMETEXT');
     });
 
     it('Should convert text to lowercase using lowercase filter', function() {
         expect(eval(filterPreprocessor('"someText" | lowercase'))).toEqual('sometext');
+        // Should unwrap observable value
+        expect(eval(filterPreprocessor('ko.observable("someText") | lowercase'))).toEqual('sometext');
     });
 
-    it('Should convert blank text to default value using default filter', function() {
-        // non-blank value is not affected
+    it('Should convert blank text, empty array, or null to default value using default filter', function() {
+        // non-blank value is not converted
         expect(eval(filterPreprocessor('"someText" | default:"blank"'))).toEqual('someText');
-        // blank value is changed
+        // empty string value is converted
         expect(eval(filterPreprocessor('"" | default:"blank"'))).toEqual('blank');
-        // zero value is not changed
+        // string value with only spaces is converted
+        expect(eval(filterPreprocessor('"  " | default:"blank"'))).toEqual('blank');
+        // spaces around string value are not trimmed
+        expect(eval(filterPreprocessor('" x " | default:"blank"'))).toEqual(' x ');
+        // zero value is not converted
         expect(eval(filterPreprocessor('0 | default:"blank"'))).toEqual(0);
+        // empty array is converted
+        expect(eval(filterPreprocessor('[] | default:"blank"'))).toEqual('blank');
+        // null or undefined value is converted
+        expect(eval(filterPreprocessor('null | default:"blank"'))).toEqual('blank');
+        expect(eval(filterPreprocessor('undefined | default:"blank"'))).toEqual('blank');
+        // a function is not converted
+        var emptyFunction = function() {};
+        expect(eval(filterPreprocessor('emptyFunction | default:"blank"'))).toEqual(emptyFunction);
+        // Should unwrap observable value
+        expect(eval(filterPreprocessor('ko.observable("someText") | default:"blank"'))).toEqual('someText');
     });
 
     it('Should replace found text in input using replace filter', function() {
         expect(eval(filterPreprocessor('"someText" | replace:"some":"any"'))).toEqual('anyText');
+        // Should unwrap observable value
+        expect(eval(filterPreprocessor('ko.observable("someText") | replace:"some":"any"'))).toEqual('anyText');
     });
 
     it('Should truncate text if appropriate using fit filter', function() {
@@ -66,6 +86,8 @@ describe("Text filters preprocessor", function() {
         expect(eval(filterPreprocessor('"someText" | fit:7::"left"'))).toEqual('...Text');
         // Truncates in the middle if specified
         expect(eval(filterPreprocessor('"someText" | fit:7::"middle"'))).toEqual('so...xt');
+        // Should unwrap observable value
+        expect(eval(filterPreprocessor('ko.observable("someText") | fit:8'))).toEqual('someText');
     });
 
     it('Should convert input to JSON text using json filter', function() {
@@ -82,16 +104,12 @@ describe("Text filters preprocessor", function() {
 
 describe("Text filter bindings", function() {
     beforeEach(jasmine.prepareTestNode);
+    beforeEach(function() { ko.punches.textFilter.enableForBinding('text'); });
+    afterEach(function() { ko.bindingHandlers.text.preprocess = null; });
 
     it('Should convert input into appropriate output', function() {
-        try {
-            ko.punches.textFilter.enableForBinding('text');
-
-            testNode.innerHTML = "<div data-bind='text: input | lowercase | fit:10 | json'></div>";
-            ko.applyBindings({ input: "Some string of data" }, testNode);
-            expect(testNode).toContainText('"some st..."');
-        } finally {
-            ko.bindingHandlers.text.preprocess = null;
-        }
+        testNode.innerHTML = "<div data-bind='text: input | lowercase | fit:10 | json'></div>";
+        ko.applyBindings({ input: "Some string of data" }, testNode);
+        expect(testNode).toContainText('"some st..."');
     });
 });

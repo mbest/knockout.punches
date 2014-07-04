@@ -57,6 +57,9 @@ function setBindingHandlerCreator(matchRegex, callbackFn) {
     };
 }
 
+// Create shortcuts to commonly used ko functions
+var ko_unwrap = ko.unwrap;
+
 // Create "punches" object and export utility functions
 var ko_punches = ko.punches = {
     utils: {

@@ -48,31 +48,33 @@ var filters = {};
 
 // Convert value to uppercase
 filters.uppercase = function(value) {
-    return String.prototype.toUpperCase.call(value);
+    return String.prototype.toUpperCase.call(ko_unwrap(value));
 };
 
 // Convert value to lowercase
 filters.lowercase = function(value) {
-    return String.prototype.toLowerCase.call(value);
+    return String.prototype.toLowerCase.call(ko_unwrap(value));
 };
 
 // Return default value if the input value is empty or null
 filters['default'] = function (value, defaultValue) {
+    value = ko_unwrap(value);
     if (typeof value === "function") {
-        value = $.trim(value());
+        return value;
     }
     if (typeof value === "string") {
-        value = $.trim(value);
+        return trim(value) === '' ? defaultValue : value;
     }
-    return (value === '' || value.length == 0 || value == null) ? defaultValue : value;
+    return value == null || value.length == 0 ? defaultValue : value;
 };
 
 // Return the value with the search string replaced with the replacement string
 filters.replace = function(value, search, replace) {
-    return String.prototype.replace.call(value, search, replace);
+    return String.prototype.replace.call(ko_unwrap(value), search, replace);
 };
 
 filters.fit = function(value, length, replacement, trimWhere) {
+    value = ko_unwrap(value);
     if (length && ('' + value).length > length) {
         replacement = '' + (replacement || '...');
         length = length - replacement.length;
@@ -98,7 +100,7 @@ filters.json = function(rootObject, space, replacer) {     // replacer and space
 
 // Format a number using the browser's toLocaleString
 filters.number = function(value) {
-    return (+value).toLocaleString();
+    return (+ko_unwrap(value)).toLocaleString();
 };
 
 // Export the filters object for general access

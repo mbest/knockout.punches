@@ -57,7 +57,7 @@ if (!ko.virtualElements.allowedBindings.html) {
     var overridden = ko.bindingHandlers.html.update;
     ko.bindingHandlers.html.update = function (element, valueAccessor) {
         if (element.nodeType === 8) {
-            var html = ko.utils.unwrapObservable(valueAccessor());
+            var html = ko_unwrap(valueAccessor());
             if (html != null) {
                 var parsedNodes = ko.utils.parseHtmlFragment('' + html);
                 ko.virtualElements.setDomNodeChildren(element, parsedNodes);

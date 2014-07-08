@@ -11,7 +11,7 @@ function wrappedCallbackPreprocessor(val) {
 
 // Set the wrappedCallback preprocessor for a specific binding
 function enableWrappedCallback(bindingKeyOrHandler) {
-    setBindingPreprocessor(bindingKeyOrHandler, wrappedCallbackPreprocessor);
+    addBindingPreprocessor(bindingKeyOrHandler, wrappedCallbackPreprocessor);
 }
 
 // Export the preprocessor functions

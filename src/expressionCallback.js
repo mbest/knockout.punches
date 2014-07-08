@@ -10,7 +10,7 @@ var eventExpressionPreprocessor = makeExpressionCallbackPreprocessor("$data,$eve
 // Set the expressionCallback preprocessor for a specific binding
 function enableExpressionCallback(bindingKeyOrHandler, args) {
     var args = Array.prototype.slice.call(arguments, 1).join();
-    setBindingPreprocessor(bindingKeyOrHandler, makeExpressionCallbackPreprocessor(args));
+    addBindingPreprocessor(bindingKeyOrHandler, makeExpressionCallbackPreprocessor(args));
 }
 
 // Export the preprocessor functions
@@ -24,6 +24,6 @@ ko_punches.expressionCallback = {
 ko.bindingHandlers.on = {
     getNamespacedHandler: function(eventName) {
         var handler = ko.getBindingHandler('event' + namespaceDivider + eventName);
-        return setBindingPreprocessor(handler, eventExpressionPreprocessor);
+        return addBindingPreprocessor(handler, eventExpressionPreprocessor);
     }
 };

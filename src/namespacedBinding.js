@@ -4,7 +4,7 @@
 // the same way, but just set a different named value, such as for element
 // attributes or CSS classes.
 var namespacedBindingMatch = /([^\.]+)\.(.+)/, namespaceDivider = '.';
-setBindingHandlerCreator(namespacedBindingMatch, function (match, bindingKey) {
+addBindingHandlerCreator(namespacedBindingMatch, function (match, bindingKey) {
     var namespace = match[1],
         namespaceHandler = ko.bindingHandlers[namespace];
     if (namespaceHandler) {
@@ -56,7 +56,7 @@ function setDefaultNamespacedBindingPreprocessor(namespace, preprocessFn) {
     if (handler) {
         var previousHandlerFn = handler.getNamespacedHandler || defaultGetNamespacedHandler;
         handler.getNamespacedHandler = function() {
-            return setBindingPreprocessor(previousHandlerFn.apply(this, arguments), preprocessFn);
+            return addBindingPreprocessor(previousHandlerFn.apply(this, arguments), preprocessFn);
         };
     }
 }
@@ -75,7 +75,7 @@ function autoNamespacedPreprocessor(value, binding, addBinding) {
 
 // Set the namespaced preprocessor for a specific binding
 function enableAutoNamespacedSyntax(bindingKeyOrHandler) {
-    setBindingPreprocessor(bindingKeyOrHandler, autoNamespacedPreprocessor);
+    addBindingPreprocessor(bindingKeyOrHandler, autoNamespacedPreprocessor);
 }
 
 // Export the preprocessor functions

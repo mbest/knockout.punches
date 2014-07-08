@@ -1,5 +1,5 @@
 // Add a preprocess function to a binding handler.
-function setBindingPreprocessor(bindingKeyOrHandler, preprocessFn) {
+function addBindingPreprocessor(bindingKeyOrHandler, preprocessFn) {
     return chainPreprocessor(getOrCreateHandler(bindingKeyOrHandler), 'preprocess', preprocessFn);
 }
 
@@ -34,7 +34,7 @@ function chainPreprocessor(obj, prop, fn) {
 // function already exists, chain the new one after it. This calls
 // each function in the chain until one modifies the node. This
 // method allows only one function to modify the node.
-function setNodePreprocessor(preprocessFn) {
+function addNodePreprocessor(preprocessFn) {
     var provider = ko.bindingProvider.instance;
     if (provider.preprocessNode) {
         var previousPreprocessFn = provider.preprocessNode;
@@ -49,7 +49,7 @@ function setNodePreprocessor(preprocessFn) {
     }
 }
 
-function setBindingHandlerCreator(matchRegex, callbackFn) {
+function addBindingHandlerCreator(matchRegex, callbackFn) {
     var oldGetHandler = ko.getBindingHandler;
     ko.getBindingHandler = function(bindingKey) {
         var match;
@@ -63,9 +63,13 @@ var ko_unwrap = ko.unwrap;
 // Create "punches" object and export utility functions
 var ko_punches = ko.punches = {
     utils: {
-        setBindingPreprocessor: setBindingPreprocessor,
-        setNodePreprocessor: setNodePreprocessor,
-        setBindingHandlerCreator: setBindingHandlerCreator
+        addBindingPreprocessor: addBindingPreprocessor,
+        addNodePreprocessor: addNodePreprocessor,
+        addBindingHandlerCreator: addBindingHandlerCreator,
+
+        // previous names retained for backwards compitibility
+        setBindingPreprocessor: addBindingPreprocessor,
+        setNodePreprocessor: addNodePreprocessor
     }
 };
 

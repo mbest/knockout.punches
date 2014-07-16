@@ -30,6 +30,10 @@ jasmine.nodeText = function(node) {
     return 'textContent' in node ? node.textContent : node.innerText;
 }
 
+jasmine.setNodeText = function(node, text) {
+    'textContent' in node ? node.textContent = text : node.innerText = text;
+}
+
 jasmine.Matchers.prototype.toContainText = function (expectedText) {
     var actualText = jasmine.nodeText(this.actual);
     var cleanedActualText = actualText.replace(/\r\n/g, "\n");

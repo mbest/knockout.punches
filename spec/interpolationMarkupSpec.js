@@ -297,14 +297,14 @@ describe("Attribute Interpolation Markup preprocessor", function() {
         testNode.setAttribute('id', "{{expr2}}");
         testNode.setAttribute('data-test', "{{expr3}}");
         ko.punches.attributeInterpolationMarkup.preprocessor(testNode);
-        expect(testNode.getAttribute('data-bind')).toEqual('attr.data-test:expr3,attr.id:expr2,attr.title:expr1'); // the order shouldn't matter
+        expect(testNode.getAttribute('data-bind')).toEqual('attr.title:expr1,attr.id:expr2,attr.data-test:expr3'); // the order shouldn't matter
     });
 
     it('Should convert value and checked attributes to two-way bindings', function() {
         var input = document.createElement('input');
         input.type = 'checkbox';
-        input.setAttribute('value', "{{expr1}}");
         input.setAttribute('checked', "{{expr2}}");
+        input.setAttribute('value', "{{expr1}}");
         ko.punches.attributeInterpolationMarkup.preprocessor(input);
         expect(input.getAttribute('data-bind')).toEqual('checked:expr2,value:expr1');
     });
@@ -323,10 +323,10 @@ describe("Attribute Interpolation Markup preprocessor", function() {
         }
         // Won't be in data-bind because it doesn't include an expression
         testNode.setAttribute('ko-class', "test");
-        // This will use the custom handler
-        testNode.setAttribute('ko-id', "{{expr2}}");
         // Should handle normal attributes normally
         testNode.setAttribute('title', "{{expr1}}");
+        // This will use the custom handler
+        testNode.setAttribute('ko-id', "{{expr2}}");
         ko.punches.attributeInterpolationMarkup.preprocessor(testNode);
         expect(testNode.getAttribute('data-bind')).toEqual('attr.title:expr1,attr.id:expr2');
     });

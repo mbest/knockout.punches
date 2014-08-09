@@ -103,7 +103,7 @@ var dataBind = 'data-bind';
 function attributeInterpolationMarkerPreprocessor(node) {
     if (node.nodeType === 1 && node.attributes.length) {
         var dataBindAttribute = node.getAttribute(dataBind);
-        for (var attrs = node.attributes, i = attrs.length-1; i >= 0; --i) {
+        for (var attrs = ko.utils.arrayPushAll([], node.attributes), n = attrs.length, i = 0; i < n; ++i) {
             var attr = attrs[i];
             if (attr.specified && attr.name != dataBind && attr.value.indexOf('{{') !== -1) {
                 var parts = [], attrValue = '';
@@ -131,7 +131,9 @@ function attributeInterpolationMarkerPreprocessor(node) {
                         dataBindAttribute += ',' + attrBinding;
                     }
                     node.setAttribute(dataBind, dataBindAttribute);
-                    node.removeAttributeNode(attr);
+                    // Using removeAttribute instead of removeAttributeNode because IE clears the
+                    // class if you use removeAttributeNode to remove the id.
+                    node.removeAttribute(attr.name);
                 }
             }
         }

@@ -128,13 +128,37 @@ describe("Interpolation Markup bindings", function() {
         expect(testNode).toContainText("hello --name--!");
     });
 
+    it('Should not modify the content of <textarea> tags', function() {
+        testNode.innerHTML = "<p>Hello</p><textarea>{{'name'}}</textarea><p>Goodbye</p>";
+        ko.applyBindings(null, testNode);
+        expect(testNode).toContainHtml("<p>hello</p><textarea>{{'name'}}</textarea><p>goodbye</p>");
+    });
+
+    it('Should not modify the content of <script> tags', function() {
+        testNode.innerHTML = "<p>Hello</p><script>{{return}}</script><p>Goodbye</p>";
+        ko.applyBindings(null, testNode);
+        expect(testNode).toContainHtml("<p>hello</p><script>{{return}}</script><p>goodbye</p>");
+    });
+
+    it('Should work when used in template declared using <script>', function() {
+        testNode.innerHTML = "<div data-bind='template: \"tmpl\"'></div><script type='text/html' id='tmpl'>{{'name'}}</textarea>";
+        ko.applyBindings(null, testNode);
+        expect(testNode.childNodes[0]).toContainText("name");
+    });
+
+    it('Should work when used in template declared using <textarea>', function() {
+        testNode.innerHTML = "<div data-bind='template: \"tmpl\"'></div><textarea id='tmpl'>{{'name'}}</textarea>";
+        ko.applyBindings(null, testNode);
+        expect(testNode.childNodes[0]).toContainText("name");
+    });
+
     describe("Using unescaped HTML syntax", function() {
         it('Should replace {{{...}}} expression with virtual html binding', function() {
             jasmine.setNodeText(testNode, "hello {{{'<b>name</b>'}}}!");
             ko.applyBindings(null, testNode);
             expect(testNode).toContainText("hello name!");
             expect(testNode).toContainHtml("hello <!--ko html:'<b>name</b>'--><b>name</b><!--/ko-->!");
-            expect(testNode.children[0].nodeName.toLowerCase()).toEqual('b');
+            expect(testNode.childNodes[2].nodeName.toLowerCase()).toEqual('b');
         });
 
         it('Should support mix of escaped and unescape expressions', function() {
@@ -142,14 +166,14 @@ describe("Interpolation Markup bindings", function() {
             ko.applyBindings(null, testNode);
             expect(testNode).toContainText("hello name!");
             expect(testNode).toContainHtml("hello <!--ko html:'<b>name</b>'--><b>name</b><!--/ko--><!--ko text:'!'-->!<!--/ko-->");
-            expect(testNode.children[0].nodeName.toLowerCase()).toEqual('b');
+            expect(testNode.childNodes[2].nodeName.toLowerCase()).toEqual('b');
         });
 
         it('Should support any content of expression, including functions and {{{}}}', function() {
             jasmine.setNodeText(testNode, "hello {{{ (function(){return '<b>{{{name}}}</b>'}()) }}}!");
             ko.applyBindings(null, testNode);
             expect(testNode).toContainText("hello {{{name}}}!");
-            expect(testNode.children[0].nodeName.toLowerCase()).toEqual('b');
+            expect(testNode.childNodes[2].nodeName.toLowerCase()).toEqual('b');
         });
 
         it('Should ignore unmatched }}} and {{{', function() {
@@ -160,13 +184,13 @@ describe("Interpolation Markup bindings", function() {
 
         it('Should update when observable changes', function() {
             jasmine.setNodeText(testNode, "The best {{{what}}}.");
-            var observable = ko.observable('<b>time<b>');
+            var observable = ko.observable('<b>time</b>');
             ko.applyBindings({what: observable}, testNode);
             expect(testNode).toContainText("The best time.");
-            expect(testNode.children[0].nodeName.toLowerCase()).toEqual('b');
+            expect(testNode.childNodes[2].nodeName.toLowerCase()).toEqual('b');
             observable('<i>fun</i>');
             expect(testNode).toContainText("The best fun.");
-            expect(testNode.children[0].nodeName.toLowerCase()).toEqual('i');
+            expect(testNode.childNodes[2].nodeName.toLowerCase()).toEqual('i');
         });
     });
 

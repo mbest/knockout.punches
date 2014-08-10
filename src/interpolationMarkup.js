@@ -27,7 +27,7 @@ function trim(string) {
 
 function interpolationMarkupPreprocessor(node) {
     // only needs to work with text nodes
-    if (node.nodeType === 3 && node.nodeValue && node.nodeValue.indexOf('{{') !== -1) {
+    if (node.nodeType === 3 && node.nodeValue && node.nodeValue.indexOf('{{') !== -1 && (node.parentNode || {}).nodeName != "TEXTAREA") {
         var nodes = [];
         function addTextNode(text) {
             if (text)

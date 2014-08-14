@@ -197,6 +197,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0;
   margin: 0 0 20px;
   line-height: 1.2;
+  font-weight: bold;
 }
 
 p, ul, ol, table, pre, dl {
@@ -250,6 +251,7 @@ pre code {
 }
 code {
   font-weight: bold;
+  white-space: nowrap;
 }
 li pre {
   margin-left: -60px;

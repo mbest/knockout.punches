@@ -124,7 +124,8 @@ function attributeInterpolationMarkerPreprocessor(node) {
                 }
 
                 if (attrValue) {
-                    var attrBinding = ko_punches_attributeInterpolationMarkup.attributeBinding(attr.name, attrValue, node) || attributeBinding(attr.name, attrValue, node);
+                    var attrName = attr.name.toLowerCase();
+                    var attrBinding = ko_punches_attributeInterpolationMarkup.attributeBinding(attrName, attrValue, node) || attributeBinding(attrName, attrValue, node);
                     if (!dataBindAttribute) {
                         dataBindAttribute = attrBinding
                     } else {

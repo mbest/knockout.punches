@@ -3,7 +3,7 @@
  * Enhanced binding syntaxes for Knockout 3+
  * (c) Michael Best
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
- * Version 0.4.0
+ * Version 0.4.1
  */
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
@@ -128,23 +128,18 @@ function filterPreprocessor(input) {
         // Append a line so that we don't need a separate code block to deal with the last item
         tokens.push('|');
         input = tokens[0];
-        var lastToken, token, inFilters = false, nextIsFilter = false, countFilters = 0;
+        var lastToken, token, inFilters = false, nextIsFilter = false;
         for (var i = 1, token; token = tokens[i]; ++i) {
             if (token === '|') {
                 if (inFilters) {
                     if (lastToken === ':')
                         input += "undefined";
                     input += ')';
-                    ++countFilters;
                 }
                 nextIsFilter = true;
                 inFilters = true;
             } else {
                 if (nextIsFilter) {
-                    // If the filtered value is an identifier xxx, convert it to $data.xxx to allow for undefined identifiers
-                    if (!countFilters && /^[$_a-zA-Z][$\w]*$/.test(input) && !/^(true|false|null|undefined)$/.test(input)) {
-                        input = "$data." + input;
-                    }
                     input = "ko.filters['" + token + "'](" + input;
                 } else if (inFilters && token === ':') {
                     if (lastToken === ':')

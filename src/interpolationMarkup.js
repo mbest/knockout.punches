@@ -74,14 +74,18 @@ if (!ko.virtualElements.allowedBindings.html) {
 function wrapExpression(expressionText, node) {
     var ownerDocument = node ? node.ownerDocument : document,
         closeComment = ownerDocument.createComment("/ko"),
-        firstChar = expressionText[0];
+        firstChar = expressionText[0], matches;
 
     if (firstChar === '#') {
-        return [ ownerDocument.createComment("ko " + expressionText.slice(1)) ];
+        expressionText = trim(expressionText.slice(1));
+        if (matches = expressionText.match(/^([^,"'{}()\/:[\]\s]+)\s+([^\s:].*)/)) {
+            expressionText = matches[1] + ':' + matches[2];
+        }
+        return [ ownerDocument.createComment("ko " + expressionText) ];
     } else if (firstChar === '/') {
         return [ closeComment ];
     } else if (firstChar === '{' && expressionText[expressionText.length - 1] === '}') {
-        return [ ownerDocument.createComment("ko html:" + expressionText.slice(1, -1)), closeComment ];
+        return [ ownerDocument.createComment("ko html:" + trim(expressionText.slice(1, -1))), closeComment ];
     } else {
         return [ ownerDocument.createComment("ko text:" + expressionText), closeComment ];
     }

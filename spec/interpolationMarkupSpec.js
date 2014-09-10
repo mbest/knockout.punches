@@ -22,26 +22,36 @@ describe("Interpolation Markup preprocessor", function() {
     it('Should create binding from {{...}} expression', function() {
         var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{ expr }} text"));
         expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
+        expect(result[1].nodeValue).toEqual('ko text:expr');
+        expect(result[2].nodeValue).toEqual('/ko');
     });
 
     it('Should ignore unmatched delimiters', function() {
         var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{ expr }} }} text"));
         expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
+        expect(result[1].nodeValue).toEqual('ko text:expr }}');
     });
 
     it('Should support two expressions', function() {
         var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{ expr1 }} middle {{ expr2 }} text"));
         expect(result).toHaveNodeTypes([3, 8, 8, 3, 8, 8, 3]);   // text, comment, comment, text, comment, comment, text
+        expect(result[1].nodeValue).toEqual('ko text:expr1');
+        expect(result[4].nodeValue).toEqual('ko text:expr2');
     });
 
     it('Should skip empty text', function() {
         var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("{{ expr1 }}{{ expr2 }}"));
         expect(result).toHaveNodeTypes([8, 8, 8, 8]);   // comment, comment, comment, comment
+        expect(result[0].nodeValue).toEqual('ko text:expr1');
+        expect(result[2].nodeValue).toEqual('ko text:expr2');
     });
 
     it('Should support more than two expressions', function() {
         var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("x {{ expr1 }} y {{ expr2 }} z {{ expr3 }}"));
         expect(result).toHaveNodeTypes([3, 8, 8, 3, 8, 8, 3, 8, 8]);   // text, comment, comment, text, comment, comment, text, comment, comment
+        expect(result[1].nodeValue).toEqual('ko text:expr1');
+        expect(result[4].nodeValue).toEqual('ko text:expr2');
+        expect(result[7].nodeValue).toEqual('ko text:expr3');
     });
 
     describe("Using unescaped HTML syntax", function() {
@@ -58,16 +68,49 @@ describe("Interpolation Markup preprocessor", function() {
         it('Should create binding from {{{...}}} expression', function() {
             var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ expr }}} text"));
             expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
+            expect(result[1].nodeValue).toEqual('ko html:expr');
+            expect(result[2].nodeValue).toEqual('/ko');
         });
 
         it('Should ignore unmatched delimiters', function() {
             var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ expr }}} }}} text"));
             expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
+            expect(result[1].nodeValue).toEqual('ko html:expr }}}');
         });
 
         it('Should support two expressions', function() {
             var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{{ expr1 }}} middle {{{ expr2 }}} text"));
             expect(result).toHaveNodeTypes([3, 8, 8, 3, 8, 8, 3]);   // text, comment, comment, text, comment, comment, text
+            expect(result[1].nodeValue).toEqual('ko html:expr1');
+            expect(result[4].nodeValue).toEqual('ko html:expr2');
+        });
+    });
+
+    describe("Using block syntax", function() {
+        it('Should create binding from {{#....}}{{/....}} expression', function() {
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{#binding:value}}{{/binding}} text"));
+            expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
+            expect(result[1].nodeValue).toEqual('ko binding:value');
+            expect(result[2].nodeValue).toEqual('/ko');
+        });
+
+        it('Should tolerate spaces around various components', function() {
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{ # binding : value }}{{ / binding }} text"));
+            expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
+            expect(result[1].nodeValue).toEqual('ko binding : value');
+            expect(result[2].nodeValue).toEqual('/ko');
+        });
+
+        it('Should insert semicolon if missing', function() {
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{#binding value}}{{/binding}} text"));
+            expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
+            expect(result[1].nodeValue).toEqual('ko binding:value');
+        });
+
+        it('Should not insert semicolon if binding has no value', function() {
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{#binding }}{{/binding}} text"));
+            expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
+            expect(result[1].nodeValue).toEqual('ko binding');
         });
     });
 });
@@ -222,6 +265,15 @@ describe("Interpolation Markup bindings", function() {
             }, testNode);
             expect(testNode).toContainHtmlElementsAndText("<ul><li>bill gates</li><li>steve jobs</li><li>larry ellison</li></ul>");
         });
+
+        it('Should work without the colon', function() {
+            testNode.innerHTML = "<ul>{{#foreach people}}<li>{{$data}}</li>{{/foreach}}</ul>";
+            ko.applyBindings({
+                people: [ "Bill Gates", "Steve Jobs", "Larry Ellison" ]
+            }, testNode);
+            expect(testNode).toContainHtmlElementsAndText("<ul><li>bill gates</li><li>steve jobs</li><li>larry ellison</li></ul>");
+        });
+
     });
 });
 

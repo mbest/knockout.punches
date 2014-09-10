@@ -35,7 +35,7 @@ function interpolationMarkupPreprocessor(node) {
         }
         function wrapExpr(expressionText) {
             if (expressionText)
-                nodes.push.apply(nodes, ko_punches_interpolationMarkup.wrapExpression(trim(expressionText), node));
+                nodes.push.apply(nodes, ko_punches_interpolationMarkup.wrapExpression(expressionText, node));
         }
         parseInterpolationMarkup(node.nodeValue, addTextNode, wrapExpr)
 
@@ -73,22 +73,36 @@ if (!ko.virtualElements.allowedBindings.html) {
 
 function wrapExpression(expressionText, node) {
     var ownerDocument = node ? node.ownerDocument : document,
-        closeComment = ownerDocument.createComment("/ko"),
-        firstChar = expressionText[0], matches;
+        closeComment = true,
+        binding,
+        firstChar = expressionText[0],
+        lastChar = expressionText[expressionText.length - 1],
+        result = [],
+        matches;
 
     if (firstChar === '#') {
-        expressionText = trim(expressionText.slice(1));
-        if (matches = expressionText.match(/^([^,"'{}()\/:[\]\s]+)\s+([^\s:].*)/)) {
-            expressionText = matches[1] + ':' + matches[2];
+        if (lastChar === '/') {
+            binding = expressionText.slice(1, -1);
+        } else {
+            binding = expressionText.slice(1);
+            closeComment = false;
         }
-        return [ ownerDocument.createComment("ko " + expressionText) ];
+        if (matches = binding.match(/^([^,"'{}()\/:[\]\s]+)\s+([^\s:].*)/)) {
+            binding = matches[1] + ':' + matches[2];
+        }
     } else if (firstChar === '/') {
-        return [ closeComment ];
-    } else if (firstChar === '{' && expressionText[expressionText.length - 1] === '}') {
-        return [ ownerDocument.createComment("ko html:" + trim(expressionText.slice(1, -1))), closeComment ];
+        // replace only with a closing comment
+    } else if (firstChar === '{' && lastChar === '}') {
+        binding = "html:" + trim(expressionText.slice(1, -1));
     } else {
-        return [ ownerDocument.createComment("ko text:" + expressionText), closeComment ];
+        binding = "text:" + trim(expressionText);
     }
+
+    if (binding)
+        result.push(ownerDocument.createComment("ko " + binding));
+    if (closeComment)
+        result.push(ownerDocument.createComment("/ko"));
+    return result;
 };
 
 function enableInterpolationMarkup() {

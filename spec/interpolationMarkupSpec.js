@@ -95,9 +95,9 @@ describe("Interpolation Markup preprocessor", function() {
         });
 
         it('Should tolerate spaces around various components', function() {
-            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{ # binding : value }}{{ / binding }} text"));
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{# binding : value }}{{/ binding }} text"));
             expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
-            expect(result[1].nodeValue).toEqual('ko binding : value');
+            expect(result[1].nodeValue).toEqual('ko  binding : value ');
             expect(result[2].nodeValue).toEqual('/ko');
         });
 
@@ -108,9 +108,16 @@ describe("Interpolation Markup preprocessor", function() {
         });
 
         it('Should not insert semicolon if binding has no value', function() {
-            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{#binding }}{{/binding}} text"));
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{#binding}}{{/binding}} text"));
             expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
             expect(result[1].nodeValue).toEqual('ko binding');
+        });
+
+        it('Should support self-closing syntax', function() {
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{#binding:value/}} text"));
+            expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
+            expect(result[1].nodeValue).toEqual('ko binding:value');
+            expect(result[2].nodeValue).toEqual('/ko');
         });
     });
 });
@@ -259,7 +266,7 @@ describe("Interpolation Markup bindings", function() {
         });
 
         it('Should support nested blocks', function() {
-            testNode.innerHTML = "<ul>{{ #foreach: people }} {{ #if: $data }}<li>{{ $data }}</li>{{ /if }}{{ /foreach }}</ul>";
+            testNode.innerHTML = "<ul>{{#foreach: people}} {{#if: $data}}<li>{{$data}}</li>{{/if}}{{/foreach}}</ul>";
             ko.applyBindings({
                 people: [ "Bill Gates", null, "Steve Jobs", "Larry Ellison" ]
             }, testNode);
@@ -274,6 +281,11 @@ describe("Interpolation Markup bindings", function() {
             expect(testNode).toContainHtmlElementsAndText("<ul><li>bill gates</li><li>steve jobs</li><li>larry ellison</li></ul>");
         });
 
+        it('Should support self-closing blocks', function() {
+            jasmine.setNodeText(testNode, "hello {{#text 'name'/}}");
+            ko.applyBindings(null, testNode);
+            expect(testNode).toContainText("hello name");
+        });
     });
 });
 

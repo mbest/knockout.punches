@@ -17,7 +17,7 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Knockout.Punches 0.4.1</h1>
+        <h1>Knockout.Punches 0.5.0</h1>
         <p>Enhanced binding syntaxes for Knockout 3+</p>
         <p class="view"><a href="https://github.com/mbest/knockout.punches">View the Project on GitHub <small>mbest/knockout.punches</small></a></p>
         <ul>
@@ -61,15 +61,22 @@ Each syntax can be enabled individually as described in the sections below. But 
 <p>You can embed any binding that works with <em>virtual elements</em>, including <code>if</code>, <code>ifnot</code>, <code>foreach</code>, <code>with</code>, and <code>template</code>, by using the block-section syntax. Examples:
 </p>
 
-<div class="highlight"><pre><span class="nt">&lt;ul&gt;</span>
+
+<div class="highlight"><pre>
+<span class="c">&lt;!-- With a colon --&gt;</span>
+<span class="nt">&lt;ul&gt;</span>
     <span class="no">{{#foreach: items}}</span>
         <span class="nt">&lt;li&gt;</span>The current item is: <span class="no">{{name}}</span><span class="nt">&lt;/li&gt;</span>
     <span class="no">{{/foreach}}</span>
 <span class="nt">&lt;/ul&gt;</span>
-<span class="no">{{#ifnot: items().length}}</span>
+
+<span class="c">&lt;!-- Without a colon --&gt;</span>
+<span class="no">{{#ifnot items().length}}</span>
     <span class="nt">&lt;div&gt;</span>There are no items.<span class="nt">&lt;/div&gt;</span>
 <span class="no">{{/ifnot}}</span>
 
+<span class="c">&lt;!-- Self-closing --&gt;</span>
+<span class="no">{{#template 'addItem'/}}</span>
 </pre></div>
 
 <p>These syntaxes are enabled by default through <code>ko.punches.enableAll()</code>. To enable them specifically, call <code>ko.punches.interpolationMarkup.enable()</code>.</p>
@@ -175,7 +182,7 @@ Each syntax can be enabled individually as described in the sections below. But 
 <p>By wrapping the method call in an anonymous function, like <code>click: function() {$parent.removePlace($data)}</code>, the <code>this</code> value is set correctly. The wrapped callback preprocessor in <em>Knockout.Punches</em> does this for you, so you can use the simple reference syntax and know that <code>this</code> is the correct object in your method.</p>
 
 <p>This preprocessor is enabled by default through <code>ko.punches.enableAll()</code> for the <code>click</code>, <code>submit</code>, and <code>event</code> bindings,
-as well as for <code>optionsAfterRender</code>, <code>template#beforeRemove</code>, <code>template#afterAdd</code>, and <code>template#afterRender</code>. To enable this preprocessor individually, call <code>ko.punches.wrappedCallback.enableForBinding(&lt;binding&gt;)</code> for each binding that you want to use it with. If you want this functionality for a binding parameter, such as <code>template#afterRender</code>, call <code>ko.punches.preprocessBindingProperty.setPreprocessor('template', 'afterRender', ko.punches.wrappedCallback.preprocessor)</code>. If you want to use it for all dynamically created bindings with a certain namespace (such as <code>event</code>), call <code>ko.punches.namespacedBinding.setDefaultBindingPreprocessor('event', ko.punches.wrappedCallback.preprocessor)</code>.</p>
+as well as for <code>optionsAfterRender</code>, <code>template#beforeRemove</code>, <code>template#afterAdd</code>, and <code>template#afterRender</code>. To enable this preprocessor individually, call <code>ko.punches.wrappedCallback.enableForBinding(&lt;binding&gt;)</code> for each binding that you want to use it with. If you want this functionality for a binding parameter, such as <code>template#afterRender</code>, call <code>ko.punches.preprocessBindingProperty.addPreprocessor('template', 'afterRender', ko.punches.wrappedCallback.preprocessor)</code>. If you want to use it for all dynamically created bindings with a certain namespace (such as <code>event</code>), call <code>ko.punches.namespacedBinding.addDefaultBindingPreprocessor('event', ko.punches.wrappedCallback.preprocessor)</code>.</p>
 
 <h2>
 <a name="expression-based-event-handling" class="anchor" href="#expression-based-event-handling"><span class="octicon octicon-link"></span></a>Expression-based event handling</h2>
@@ -205,9 +212,9 @@ as well as for <code>optionsAfterRender</code>, <code>template#beforeRemove</cod
 
 <ul>
 <li>
-<code>.setBindingPreprocessor(bindingKeyOrHandler, preprocessFn)</code> - Adds a preprocess function to a binding handler. Automatically handles chaining.</li>
+<code>.addBindingPreprocessor(bindingKeyOrHandler, preprocessFn)</code> - Adds a preprocess function to a binding handler. Automatically handles chaining.</li>
 <li>
-<code>.setNodePreprocessor(preprocessFn)</code> - Add a node preprocessor function. Automatically handles chaining.</li>
+<code>.addNodePreprocessor(preprocessFn)</code> - Adds a node preprocessor function. Automatically handles chaining.</li>
 </ul>
 </li>
 <li>
@@ -262,7 +269,7 @@ as well as for <code>optionsAfterRender</code>, <code>template#beforeRemove</cod
 <li>
 <code>.defaultGetHandler(name, namespace, namespacedName)</code> - Gets a binding handler for the given namespace/name that calls the <em>namespace</em> binding handler with a value of <code>{name: value}</code>.</li>
 <li>
-<code>.setDefaultBindingPreprocessor(namespace, preprocessFn)</code> - Sets a preprocessor for each dynamically created binding for the given namespace.</li>
+<code>.addDefaultBindingPreprocessor(namespace, preprocessFn)</code> - Adds a preprocessor for each dynamically created binding for the given namespace.</li>
 <li>
 <code>.preprocessor(input)</code> - The preprocess function for the automatic namespacing syntax.</li>
 <li>
@@ -296,7 +303,7 @@ as well as for <code>optionsAfterRender</code>, <code>template#beforeRemove</cod
 
 <ul>
 <li>
-<code>.setPreprocessor(bindingKeyOrHandler, property, preprocessFn)</code> - Enables a preprocess function for a specific property of a binding.</li>
+<code>.addPreprocessor(bindingKeyOrHandler, property, preprocessFn)</code> - Enables a preprocess function for a specific property of a binding.</li>
 </ul>
 </li>
 </ul>

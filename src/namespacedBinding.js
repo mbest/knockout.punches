@@ -47,11 +47,11 @@ function defaultGetNamespacedHandler(name, namespace, namespacedName) {
     return handler;
 }
 
-// Sets a preprocess function for every generated namespace.x binding. This can
+// Adds a preprocess function for every generated namespace.x binding. This can
 // be called multiple times for the same binding, and the preprocess functions will
 // be chained. If the binding has a custom getNamespacedHandler method, make sure that
 // it's set before this function is used.
-function setDefaultNamespacedBindingPreprocessor(namespace, preprocessFn) {
+function addDefaultNamespacedBindingPreprocessor(namespace, preprocessFn) {
     var handler = ko.getBindingHandler(namespace);
     if (handler) {
         var previousHandlerFn = handler.getNamespacedHandler || defaultGetNamespacedHandler;
@@ -81,7 +81,8 @@ function enableAutoNamespacedSyntax(bindingKeyOrHandler) {
 // Export the preprocessor functions
 ko_punches.namespacedBinding = {
     defaultGetHandler: defaultGetNamespacedHandler,
-    setDefaultBindingPreprocessor: setDefaultNamespacedBindingPreprocessor,
+    setDefaultBindingPreprocessor: addDefaultNamespacedBindingPreprocessor,    // for backwards compat.
+    addDefaultBindingPreprocessor: addDefaultNamespacedBindingPreprocessor,
     preprocessor: autoNamespacedPreprocessor,
     enableForBinding: enableAutoNamespacedSyntax
 };

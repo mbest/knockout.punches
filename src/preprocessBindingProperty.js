@@ -1,6 +1,6 @@
 // Attach a preprocess function to a specific property of a binding. This allows you to
 // preprocess binding "options" using the same preprocess functions that work for bindings.
-function setBindingPropertyPreprocessor(bindingKeyOrHandler, property, preprocessFn) {
+function addBindingPropertyPreprocessor(bindingKeyOrHandler, property, preprocessFn) {
     var handler = getOrCreateHandler(bindingKeyOrHandler);
     if (!handler._propertyPreprocessors) {
         // Initialize the binding preprocessor
@@ -35,5 +35,6 @@ function propertyPreprocessor(value, binding, addBinding) {
 
 // Export the preprocessor functions
 ko_punches.preprocessBindingProperty = {
-    setPreprocessor: setBindingPropertyPreprocessor
+    setPreprocessor: addBindingPropertyPreprocessor,     // for backwards compat.
+    addPreprocessor: addBindingPropertyPreprocessor
 };

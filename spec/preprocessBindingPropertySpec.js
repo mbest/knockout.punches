@@ -9,7 +9,7 @@ describe('Preprocess binding properties', function() {
                     value = valueAccessor();
                 }
             };
-            ko.punches.preprocessBindingProperty.setPreprocessor('a', 'b', function() {
+            ko.punches.preprocessBindingProperty.addPreprocessor('a', 'b', function() {
                 return '"new value"';
             });
             testNode.innerHTML = "<div data-bind='a: {b: \"old value\", c: \"unrelated value\"}'></div>";

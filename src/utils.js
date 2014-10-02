@@ -87,14 +87,14 @@ ko_punches.enableAll = function () {
     // Enable filter syntax for text, html, and attr
     enableTextFilter('text');
     enableTextFilter('html');
-    setDefaultNamespacedBindingPreprocessor('attr', filterPreprocessor);
+    addDefaultNamespacedBindingPreprocessor('attr', filterPreprocessor);
 
     // Enable wrapped callbacks for click, submit, event, optionsAfterRender, and template options
     enableWrappedCallback('click');
     enableWrappedCallback('submit');
     enableWrappedCallback('optionsAfterRender');
-    setDefaultNamespacedBindingPreprocessor('event', wrappedCallbackPreprocessor);
-    setBindingPropertyPreprocessor('template', 'beforeRemove', wrappedCallbackPreprocessor);
-    setBindingPropertyPreprocessor('template', 'afterAdd', wrappedCallbackPreprocessor);
-    setBindingPropertyPreprocessor('template', 'afterRender', wrappedCallbackPreprocessor);
+    addDefaultNamespacedBindingPreprocessor('event', wrappedCallbackPreprocessor);
+    addBindingPropertyPreprocessor('template', 'beforeRemove', wrappedCallbackPreprocessor);
+    addBindingPropertyPreprocessor('template', 'afterAdd', wrappedCallbackPreprocessor);
+    addBindingPropertyPreprocessor('template', 'afterRender', wrappedCallbackPreprocessor);
 };

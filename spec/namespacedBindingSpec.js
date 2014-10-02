@@ -275,7 +275,7 @@ describe('Default namespaced binding preprocessor', function() {
                 };
             }
         };
-        ko.punches.namespacedBinding.setDefaultBindingPreprocessor('a', function() {
+        ko.punches.namespacedBinding.addDefaultBindingPreprocessor('a', function() {
             return '"new value"';
         });
         testNode.innerHTML = "<div data-bind='a.b: \"old value\"'></div>";

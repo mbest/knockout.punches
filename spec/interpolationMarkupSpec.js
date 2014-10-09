@@ -95,7 +95,7 @@ describe("Interpolation Markup preprocessor", function() {
         });
 
         it('Should tolerate spaces around expressions from {{ #.... }}{{ /.... }} expression', function() {
-            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{#binding:value}}{{/binding}} text"));
+            var result = ko.punches.interpolationMarkup.preprocessor(document.createTextNode("some {{ #binding:value }}{{ /binding }} text"));
             expect(result).toHaveNodeTypes([3, 8, 8, 3]);   // text, comment, comment, text
             expect(result[1].nodeValue).toEqual('ko binding:value');
             expect(result[2].nodeValue).toEqual('/ko');

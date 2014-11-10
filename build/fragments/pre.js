@@ -9,9 +9,13 @@
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
         define(['knockout'], factory);
+    } else if (typeof module === "object") {
+        // CommonJS module
+        var ko = require("knockout");
+        factory(ko);
     } else {
         // Browser globals
-        factory(ko);
+        factory(window.ko);
     }
 }(function(ko) {
 

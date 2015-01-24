@@ -75,6 +75,7 @@ function wrapExpression(expressionText, node) {
     var ownerDocument = node ? node.ownerDocument : document,
         closeComment = true,
         binding,
+        expressionText = trim(expressionText),
         firstChar = expressionText[0],
         lastChar = expressionText[expressionText.length - 1],
         result = [],

@@ -84,6 +84,9 @@ ko_punches.enableAll = function () {
     enableAutoNamespacedSyntax('event');
     enableAutoNamespacedSyntax('style');
 
+    // Make sure that Knockout knows to bind checked after attr.value (see #40)
+    ko.bindingHandlers.checked.after.push('attr.value');
+
     // Enable filter syntax for text, html, and attr
     enableTextFilter('text');
     enableTextFilter('html');

@@ -1,5 +1,5 @@
 // Performance comparison at http://jsperf.com/markup-interpolation-comparison
-function parseInterpolationMarkup(textToParse, outerTextCallback, expressionCallback) {
+function parseInterpolationMarkup(textToParse, outerTextCallback, expressionCallback,node) {
     function innerParse(text) {
         var innerMatch = text.match(/^([\s\S]*)}}([\s\S]*?)\{\{([\s\S]*)$/);
         if (innerMatch) {
@@ -15,6 +15,32 @@ function parseInterpolationMarkup(textToParse, outerTextCallback, expressionCall
         outerTextCallback(outerMatch[1]);
         innerParse(outerMatch[2]);
         outerTextCallback(outerMatch[3]);
+    }
+    else{
+        var current = node,siblings=[node],search=true;
+        while((siblings.push(current=current.nextSibling),current) && search){
+            if (current.nodeType === 3 && current.nodeValue && ~current.nodeValue.indexOf('}}') && (current.parentNode || {}).nodeName != "TEXTAREA"){
+                search=false;
+                middle=siblings.slice(1,-1);
+                siblings=[];
+                siblings.push(node.nodeValue);
+                for (var i = 0; i < middle.length; i++) {
+                    siblings.push(middle[i].outerHTML);
+                }
+                siblings.push(current.nodeValue);
+                textToParse=siblings.join('');                
+                outerMatch = textToParse.match(/^([\s\S]*?)\{\{([\s\S]*)}}([\s\S]*)$/);
+                if (outerMatch) {
+                    for (i = middle.length - 1; i >= 0; i--) {
+                        node.parentElement.removeChild(middle[i]);
+                    }
+                    node.parentElement.removeChild(current);
+                    outerTextCallback(outerMatch[1]);
+                    innerParse(outerMatch[2]);
+                    outerTextCallback(outerMatch[3]);
+                }
+            }
+        }
     }
 }
 
@@ -37,7 +63,7 @@ function interpolationMarkupPreprocessor(node) {
             if (expressionText)
                 nodes.push.apply(nodes, ko_punches_interpolationMarkup.wrapExpression(expressionText, node));
         }
-        parseInterpolationMarkup(node.nodeValue, addTextNode, wrapExpr)
+        parseInterpolationMarkup(node.nodeValue, addTextNode, wrapExpr, node)
 
         if (nodes.length) {
             if (node.parentNode) {

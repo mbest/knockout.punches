@@ -72,32 +72,37 @@ var ko_punches = ko.punches = {
         setNodePreprocessor: addNodePreprocessor
     }
 };
-
-ko_punches.enableAll = function () {
+ko_punches.enableAll = function() {    
+    var ko_punches_namespacedBinding = ko_punches.namespacedBinding,
+        ko_punches_preprocessBindingProperty = ko_punches.preprocessBindingProperty,
+        ko_punches_textFilter = ko_punches.textFilter,
+        ko_punches_wrappedCallback = ko_punches.wrappedCallback,
+        ko_punches_interpolationMarkup=ko_punches.interpolationMarkup,
+        ko_punches_attributeInterpolationMarkup=ko_punches.attributeInterpolationMarkup;
     // Enable interpolation markup
-    enableInterpolationMarkup();
-    enableAttributeInterpolationMarkup();
+    ko_punches_interpolationMarkup.enable();
+    ko_punches_attributeInterpolationMarkup.enable();
 
     // Enable auto-namspacing of attr, css, event, and style
-    enableAutoNamespacedSyntax('attr');
-    enableAutoNamespacedSyntax('css');
-    enableAutoNamespacedSyntax('event');
-    enableAutoNamespacedSyntax('style');
+    ko_punches_namespacedBinding.enableForBinding('attr');
+    ko_punches_namespacedBinding.enableForBinding('css');
+    ko_punches_namespacedBinding.enableForBinding('event');
+    ko_punches_namespacedBinding.enableForBinding('style');
 
     // Make sure that Knockout knows to bind checked after attr.value (see #40)
     ko.bindingHandlers.checked.after.push('attr.value');
 
     // Enable filter syntax for text, html, and attr
-    enableTextFilter('text');
-    enableTextFilter('html');
-    addDefaultNamespacedBindingPreprocessor('attr', filterPreprocessor);
+    ko_punches_textFilter.enableForBinding('text');
+    ko_punches_textFilter.enableForBinding('html');
+    ko_punches_namespacedBinding.addDefaultBindingPreprocessor('attr', ko_punches_textFilter.preprocessor);
 
     // Enable wrapped callbacks for click, submit, event, optionsAfterRender, and template options
-    enableWrappedCallback('click');
-    enableWrappedCallback('submit');
-    enableWrappedCallback('optionsAfterRender');
-    addDefaultNamespacedBindingPreprocessor('event', wrappedCallbackPreprocessor);
-    addBindingPropertyPreprocessor('template', 'beforeRemove', wrappedCallbackPreprocessor);
-    addBindingPropertyPreprocessor('template', 'afterAdd', wrappedCallbackPreprocessor);
-    addBindingPropertyPreprocessor('template', 'afterRender', wrappedCallbackPreprocessor);
+    ko_punches_wrappedCallback.enableForBinding('click');
+    ko_punches_wrappedCallback.enableForBinding('submit');
+    ko_punches_wrappedCallback.enableForBinding('optionsAfterRender');
+    ko_punches_namespacedBinding.addDefaultBindingPreprocessor('event', ko_punches_wrappedCallback.preprocessor);
+    ko_punches_preprocessBindingProperty.addPreprocessor('template', 'beforeRemove', ko_punches_wrappedCallback.preprocessor);
+    ko_punches_preprocessBindingProperty.addPreprocessor('template', 'afterAdd', ko_punches_wrappedCallback.preprocessor);
+    ko_punches_preprocessBindingProperty.addPreprocessor('template', 'afterRender', ko_punches_wrappedCallback.preprocessor);
 };

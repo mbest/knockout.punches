@@ -60,7 +60,7 @@ filters.lowercase = function(value) {
 filters['default'] = function (value, defaultValue) {
     value = ko_unwrap(value);
     if (typeof value === "function") {
-        return value;
+        value = value();
     }
     if (typeof value === "string") {
         return trim(value) === '' ? defaultValue : value;

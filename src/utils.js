@@ -91,6 +91,8 @@ ko_punches.enableAll = function () {
     enableTextFilter('text');
     enableTextFilter('html');
     addDefaultNamespacedBindingPreprocessor('attr', filterPreprocessor);
+    addDefaultNamespacedBindingPreprocessor('css', filterPreprocessor);
+    addDefaultNamespacedBindingPreprocessor('style', filterPreprocessor);
 
     // Enable wrapped callbacks for click, submit, event, optionsAfterRender, and template options
     enableWrappedCallback('click');

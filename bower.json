@@ -5,7 +5,7 @@
   "authors": [
     "Michael Best <mbest@dasya.com>"
   ],
-  "description": "provides a set of enhanced binding syntaxes for knockout 3.0.0.",
+  "description": "Enhanced binding syntaxes for Knockout 3+",
   "main": "knockout.punches.min.js",
   "keywords": [
     "knockout",
@@ -17,6 +17,11 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "images",
+    "javascripts",
+    "stylesheets",
+    "index.html",
+    "*.json"
   ]
 }

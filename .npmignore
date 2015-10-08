@@ -1,0 +1,4 @@
+# Only package the build output for npm.
+*
+!knockout.punches.js
+!knockout.punches.min.js

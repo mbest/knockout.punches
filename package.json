@@ -1,7 +1,7 @@
 {
   "name": "knockout-punches",
   "version": "0.5.1",
-  "description": "provides a set of enhanced binding syntaxes for knockout 3.0.0.",
+  "description": "Enhanced binding syntaxes for Knockout 3+",
   "main": "knockout.punches.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,5 +19,5 @@
   "bugs": {
     "url": "https://github.com/mbest/knockout.punches/issues"
   },
-  "homepage": "https://github.com/mbest/knockout.punches#readme"
+  "homepage": "https://github.com/mbest/knockout.punches"
 }

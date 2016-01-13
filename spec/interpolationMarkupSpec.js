@@ -136,6 +136,55 @@ describe("Interpolation Markup preprocessor", function() {
     });
 });
 
+describe("Trim testing", function () {
+    "use strict";
+    it('Should trim trailing whitespace', function () {
+        var result = trim("trailing spaces    \t\v\f\xa0");
+        expect(result).toEqual("trailing spaces");
+    });
+
+    it('Should trim leading whitespace', function () {
+        var result = trim("  \t\v\f\xa0  leading spaces");
+        expect(result).toEqual("leading spaces");
+    });
+
+    it('Should trim leading and trailing whitespace', function () {
+        var result = trim("  \t\v\f\xa0  leading spaces\t\v\f\xa0  ");
+        expect(result).toEqual("leading spaces");
+    });
+
+    it('Should return empty string for empty string', function () {
+        var result = trim("");
+        expect(result).toEqual("");
+    });
+
+    it('Should return string for boolean', function () {
+        var result = trim(false);
+        expect(result).toEqual("false");
+    });
+
+    it('Should return string for number', function () {
+        var result = trim(0);
+        expect(result).toEqual("0");
+    });
+
+    it('Should replace null with empty string', function () {
+        var result = trim(null);
+        expect(result).toEqual("");
+    });
+
+    it('Should throw on undefined', function () {
+        expect(function () {
+            trim(undefined);
+        }).toThrow();
+    });
+
+    it('Should return string for NaN?', function () {
+        var result = trim(NaN);
+        expect(result).toEqual("NaN");
+    });
+});
+
 describe("Interpolation Markup bindings", function() {
     beforeEach(jasmine.prepareTestNode);
 

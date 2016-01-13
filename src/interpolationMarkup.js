@@ -19,10 +19,11 @@ function parseInterpolationMarkup(textToParse, outerTextCallback, expressionCall
 }
 
 function trim(string) {
-    return string == null ? '' :
-        string.trim ?
-            string.trim() :
-            string.toString().replace(/^[\s\xa0]+|[\s\xa0]+$/g, '');
+    return (string === null || string === undefined)
+        ? ''
+        : string.trim
+            ? string.trim()
+            : string.toString().replace(/^[\s\xa0]+|[\s\xa0]+$/g, '');
 }
 
 function interpolationMarkupPreprocessor(node) {

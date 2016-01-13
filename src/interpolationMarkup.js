@@ -19,7 +19,7 @@ function parseInterpolationMarkup(textToParse, outerTextCallback, expressionCall
 }
 
 function trim(string) {
-    return string === null
+    return (string === null || string === undefined)
         ? ''
         : string.trim
             ? string.trim()

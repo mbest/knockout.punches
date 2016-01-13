@@ -173,10 +173,9 @@ describe("Trim testing", function () {
         expect(result).toEqual("");
     });
 
-    it('Should throw on undefined', function () {
-        expect(function () {
-            trim(undefined);
-        }).toThrow();
+    it('Should replace undefined with empty string', function () {
+        var result = trim(undefined);
+        expect(result).toEqual("");
     });
 
     it('Should return string for NaN?', function () {

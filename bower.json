@@ -12,6 +12,9 @@
     "punches"
   ],
   "license": "MIT",
+  "dependencies": {
+    "knockout": ">=3.0.0"
+  },
   "ignore": [
     "**/.*",
     "node_modules",
